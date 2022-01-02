@@ -3,7 +3,7 @@ import sys
 
 import pygame
 
-FPS = 50
+FPS = 60
 
 
 def terminate():
@@ -12,10 +12,9 @@ def terminate():
 
 
 def start_screen():
-    intro_text = ["ЗАСТАВКА", "",
-                  "Правила игры",
-                  "Если в правилах несколько строк,",
-                  "приходится выводить их построчно"]
+    intro_text = ["Здесь",
+                  "будет",
+                  "анимация"]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (800, 600))
     screen.blit(fon, (0, 0))
@@ -75,27 +74,35 @@ def move(hero, movement):
     x, y = hero.pos
     global level_x
     global level_y
-    print(level_map[x][y - 1])
-    print(level_map[x][y + 1])
-    print(level_map[x - 1][y])
-    print(level_map[x][y + 1])
-    print()
+
+    # Я закомментила принты, тк они иногда ломают игру
+    # print(level_map[x][y - 1])
+    # print(level_map[x][y + 1])
+    # print(level_map[x - 1][y])
+    # print(level_map[x][y + 1])
+    # print()
+
+    # TODO: Может, не стоит оставлять вот эти ифы с or?
+    # Просто если добавим потом еще какие то значки, придется усложнять or
+    # Как вариант проверять что эта штука не равна решетке
+    # Можно создать группу спрайтов со стенами и прочими препятствиями и
+    # проверять что игрок не сталкивается ни с чем из этой группы при перемещении
     if movement == "up":
         if y > 0 and (level_map[y - 1][x] == "." or level_map[y - 1][x] ==
                       "@"):
-            hero.move(x, y - 1)
+            hero.move((0, -1))
     elif movement == "down":
-        if y < level_y - 1 and (level_map[y + 1][x] == "." or
+        if y <= level_y - 1 and (level_map[y + 1][x] == "." or
                                 level_map[y + 1][x] == "@"):
-            hero.move(x, y + 1)
+            hero.move((0, 1))
     elif movement == "left":
         if x > 0 and (level_map[y][x - 1] == "." or level_map[y][x - 1] ==
                       "@"):
-            hero.move(x - 1, y)
+            hero.move((-1, 0))
     elif movement == "right":
-        if x < level_x - 1 and (level_map[y][x + 1] == "." or
+        if x <= level_x - 1 and (level_map[y][x + 1] == "." or
                                 level_map[y][x + 1] == "@"):
-            hero.move(x + 1, y)
+            hero.move((1, 0))
 
 
 def generate_level(level):
@@ -129,53 +136,97 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
 
-    def move(self, x, y):
-        self.rect = self.image.get_rect().move(
-            tile_width * x, tile_height * y)
-        self.pos = x, y
+    def move(self, coords):
+        self.rect.x += coords[0] * tile_width
+        self.rect.y += coords[1] * tile_height
+        self.pos[0] += coords[0]
+        self.pos[1] += coords[1]
 
 
-# группы спрайтов
-all_sprites = pygame.sprite.Group()
-tiles_group = pygame.sprite.Group()
-player_group = pygame.sprite.Group()
-tile_images = {
-    'wall': load_image('walls.jpg'),
-    'empty': load_image('floors.jpg')
-}
-player_image = load_image('main hero.png')
+class Camera:
 
-tile_width = tile_height = 50
-pygame.init()
-size = width, height = 550, 550
-screen = pygame.display.set_mode(size)
-clock = pygame.time.Clock()
-start_screen()
-level_map = load_level('map2.txt')
-player, level_x, level_y = \
-    generate_level(load_level('map2.txt'))
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            terminate()
-        key = pygame.key.get_pressed()
-        if event.type == pygame.QUIT:
-            running = False
-        if key[pygame.K_DOWN]:
-            move(player, 'down')
-        if key[pygame.K_UP]:
-            move(player, 'up')
-        if key[pygame.K_LEFT]:
-            move(player, 'left')
-        if key[pygame.K_RIGHT]:
-            move(player, 'right')
-    all_sprites.draw(screen)
-    tiles_group.draw(screen)
-    player_group.draw(screen)
+    # зададим начальный сдвиг камеры
+    def __init__(self):
 
-    pygame.display.flip()
-    clock.tick(FPS)
+        self.dx = 0
+        self.dy = 0
+
+    # сдвинуть объект obj на смещение камеры
+    def apply(self, obj):
+
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    # позиционировать камеру на объекте target
+    def update(self, target):
+
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+        if self.dx != 0 or self.dy != 0:
+            print(self.dx, self.dy)
 
 
+if __name__ == '__main__':
 
+    # группы спрайтов
+    all_sprites = pygame.sprite.Group()
+    tiles_group = pygame.sprite.Group()
+    player_group = pygame.sprite.Group()
 
+    tile_images = {
+        'wall': load_image('walls.jpg'),
+        'empty': load_image('floors.jpg')
+    }
+    player_image = load_image('main hero.png')
+
+    tile_width = tile_height = 50
+
+    pygame.init()
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption('StolenPresents')
+
+    clock = pygame.time.Clock()
+
+    start_screen()
+
+    level_map = load_level('map2.txt')
+    player, level_x, level_y = \
+        generate_level(load_level('map2.txt'))
+
+    size = width, height = 11 * tile_width, 11 * tile_height
+    screen = pygame.display.set_mode(size)
+
+    camera = Camera()
+
+    while True:
+        
+        for event in pygame.event.get():
+            
+            if event.type == pygame.QUIT:
+                terminate()
+            key = pygame.key.get_pressed()
+            if event.type == pygame.QUIT:
+                running = False
+            if key[pygame.K_DOWN]:
+                move(player, 'down')
+            if key[pygame.K_UP]:
+                move(player, 'up')
+            if key[pygame.K_LEFT]:
+                move(player, 'left')
+            if key[pygame.K_RIGHT]:
+                move(player, 'right')
+
+        # изменяем ракурс камеры
+        camera.update(player)
+        # обновляем положение всех спрайтов
+        for sprite in all_sprites:
+            camera.apply(sprite)
+
+        screen.fill((0, 0, 0))
+        all_sprites.draw(screen)
+        tiles_group.draw(screen)
+        player_group.draw(screen)
+
+        pygame.display.flip()
+        clock.tick(FPS)
