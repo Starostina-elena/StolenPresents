@@ -3,7 +3,7 @@ import sys
 
 import pygame
 
-FPS = 50
+FPS = 60
 
 
 def terminate():
@@ -12,10 +12,9 @@ def terminate():
 
 
 def start_screen():
-    intro_text = ["ЗАСТАВКА", "",
-                  "Правила игры",
-                  "Если в правилах несколько строк,",
-                  "приходится выводить их построчно"]
+    intro_text = ["Здесь",
+                  "будет",
+                  "анимация"]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (800, 600))
     screen.blit(fon, (0, 0))
@@ -35,7 +34,7 @@ def start_screen():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
+                event.type == pygame.MOUSEBUTTONDOWN:
                 return
         pygame.display.flip()
         clock.tick(FPS)
@@ -54,7 +53,7 @@ def load_level(filename):
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
-def load_image(name, colorkey=-1):
+def load_image(name, colorkey=0, transform=None):
     fullname = os.path.join('data', name)
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
@@ -68,6 +67,8 @@ def load_image(name, colorkey=-1):
         image.set_colorkey(colorkey)
     else:
         image = image.convert_alpha()
+    if transform:
+        image = pygame.transform.scale(image, (45, 45))
     return image
 
 
@@ -75,27 +76,27 @@ def move(hero, movement):
     x, y = hero.pos
     global level_x
     global level_y
-    print(level_map[x][y - 1])
-    print(level_map[x][y + 1])
-    print(level_map[x - 1][y])
-    print(level_map[x][y + 1])
-    print()
+
+    # Я закомментила принты, тк они иногда ломают игру
+    # print(level_map[x][y - 1])
+    # print(level_map[x][y + 1])
+    # print(level_map[x - 1][y])
+    # print(level_map[x][y + 1])
+    # print()
+
+    # TODO: Может, не стоит оставлять вот эти ифы с or?
+    # Просто если добавим потом еще какие то значки, придется усложнять or
+    # Как вариант проверять что эта штука не равна решетке
+    # Можно создать группу спрайтов со стенами и прочими препятствиями и
+    # проверять что игрок не сталкивается ни с чем из этой группы при перемещении
     if movement == "up":
-        if y > 0 and (level_map[y - 1][x] == "." or level_map[y - 1][x] ==
-                      "@"):
-            hero.move(x, y - 1)
+        hero.move((0, -0.05))
     elif movement == "down":
-        if y < level_y - 1 and (level_map[y + 1][x] == "." or
-                                level_map[y + 1][x] == "@"):
-            hero.move(x, y + 1)
+        hero.move((0, 0.05))
     elif movement == "left":
-        if x > 0 and (level_map[y][x - 1] == "." or level_map[y][x - 1] ==
-                      "@"):
-            hero.move(x - 1, y)
+        hero.move((-0.05, 0))
     elif movement == "right":
-        if x < level_x - 1 and (level_map[y][x + 1] == "." or
-                                level_map[y][x + 1] == "@"):
-            hero.move(x + 1, y)
+        hero.move((0.05, 0))
 
 
 def generate_level(level):
@@ -112,10 +113,21 @@ def generate_level(level):
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
 
+def animation():
+    global animation_n
+    global animation_i
+    animation_n += 1
+    if animation_n % 5 == 0:
+        animation_i = (animation_i + 1) % 8
+        player.change_picture(animation_i)
+
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
-        super().__init__(tiles_group, all_sprites)
+        if tile_type == 'wall':
+            super().__init__(tiles_group, all_sprites, wall_group)
+        else:
+            super().__init__(tiles_group, all_sprites)
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
@@ -126,56 +138,141 @@ class Player(pygame.sprite.Sprite):
         super().__init__(player_group, all_sprites)
         self.pos = [pos_x, pos_y]
         self.image = player_image
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
 
-    def move(self, x, y):
-        self.rect = self.image.get_rect().move(
-            tile_width * x, tile_height * y)
-        self.pos = x, y
+    def move(self, coords):
+        self.rect.x += coords[0] * tile_width
+        self.rect.y += coords[1] * tile_height
+        self.pos[0] += coords[0]
+        self.pos[1] += coords[1]
+        for i in wall_group:
+            if pygame.sprite.collide_mask(self, i):
+                if coords[0] < 0:
+                    self.rect.x -= coords[0] * tile_width * 2
+                    self.pos[0] -= coords[0] * 2
+                else:
+                    self.rect.x -= coords[0] * tile_width
+                    self.pos[0] -= coords[0]
+                if coords[1] < 0:
+                    self.rect.y -= coords[1] * tile_height * 2
+                    self.pos[1] -= coords[1] * 2
+                else:
+                    self.rect.y -= coords[1] * tile_height
+                    self.pos[1] -= coords[1]
+
+    def change_picture(self, n):
+        self.image = animation_set[n]
+
+class Camera:
+
+    # зададим начальный сдвиг камеры
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    # сдвинуть объект obj на смещение камеры
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    # позиционировать камеру на объекте target
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+        if self.dx != 0 or self.dy != 0:
+            print(self.dx, self.dy)
 
 
-# группы спрайтов
-all_sprites = pygame.sprite.Group()
-tiles_group = pygame.sprite.Group()
-player_group = pygame.sprite.Group()
-tile_images = {
-    'wall': load_image('walls.jpg'),
-    'empty': load_image('floors.jpg')
-}
-player_image = load_image('main hero.png')
+if __name__ == '__main__':
+    photos = ['Дед мороз.png', 'Дед мороз(кадр2).png', 'Дед мороз(кадр3).png',
+              'Дед мороз(кадр2).png', 'Дед мороз.png', 'Дед мороз(кадр4).png',
+              'Дед мороз(кадр5).png', 'Дед мороз(кадр4).png']
+    animation_set = [load_image(i, transform=True) for i in photos]
+    animation_n = 0
+    animation_i = 0
+    # группы спрайтов
+    all_sprites = pygame.sprite.Group()
+    tiles_group = pygame.sprite.Group()
+    player_group = pygame.sprite.Group()
+    wall_group = pygame.sprite.Group()
 
-tile_width = tile_height = 50
-pygame.init()
-size = width, height = 550, 550
-screen = pygame.display.set_mode(size)
-clock = pygame.time.Clock()
-start_screen()
-level_map = load_level('map2.txt')
-player, level_x, level_y = \
-    generate_level(load_level('map2.txt'))
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            terminate()
-        key = pygame.key.get_pressed()
-        if event.type == pygame.QUIT:
-            running = False
-        if key[pygame.K_DOWN]:
-            move(player, 'down')
-        if key[pygame.K_UP]:
-            move(player, 'up')
-        if key[pygame.K_LEFT]:
-            move(player, 'left')
-        if key[pygame.K_RIGHT]:
+    tile_images = {
+        'wall': load_image('walls.jpg'),
+        'empty': load_image('floors.jpg')
+    }
+    player_image = animation_set[animation_i]
+
+    tile_width = tile_height = 50
+
+    pygame.init()
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+    pygame.display.set_caption('StolenPresents')
+
+    clock = pygame.time.Clock()
+
+    start_screen()
+
+    level_map = load_level('map2.txt')
+    player, level_x, level_y = \
+        generate_level(load_level('map2.txt'))
+
+    size = width, height = 11 * tile_width, 11 * tile_height
+    screen = pygame.display.set_mode(size)
+
+    camera = Camera()
+
+    directions = {"right": False, "left": False, "up": False, "down": False}
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            key = pygame.key.get_pressed()
+            if event.type == pygame.KEYDOWN:
+                animation()
+                if event.key == pygame.K_RIGHT:
+                    directions['right'] = True
+                elif event.key == pygame.K_LEFT:
+                    directions['left'] = True
+                elif event.key == pygame.K_UP:
+                    directions['up'] = True
+                elif event.key == pygame.K_DOWN:
+                    directions['down'] = True
+            if event.type == pygame.KEYUP:
+                animation()
+                if event.key == pygame.K_RIGHT:
+                    directions['right'] = False
+                elif event.key == pygame.K_LEFT:
+                    directions['left'] = False
+                elif event.key == pygame.K_UP:
+                    directions['up'] = False
+                elif event.key == pygame.K_DOWN:
+                    directions['down'] = False
+        if directions['right']:
+            animation()
             move(player, 'right')
-    all_sprites.draw(screen)
-    tiles_group.draw(screen)
-    player_group.draw(screen)
+        if directions['left']:
+            animation()
+            move(player, 'left')
+        if directions['up']:
+            animation()
+            move(player, 'up')
+        if directions['down']:
+            animation()
+            move(player, 'down')
 
-    pygame.display.flip()
-    clock.tick(FPS)
+        camera.update(player)
+        # обновляем положение всех спрайтов
+        for sprite in all_sprites:
+            camera.apply(sprite)
 
+        screen.fill((0, 0, 0))
+        all_sprites.draw(screen)
+        tiles_group.draw(screen)
+        player_group.draw(screen)
 
-
+        pygame.display.flip()
+        clock.tick(FPS)
 
