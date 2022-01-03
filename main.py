@@ -116,8 +116,48 @@ def generate_level(level):
             elif level[y][x] == '@':
                 Tile('empty', x, y)
                 new_player = Player(x, y)
+            elif level[y][x] == '%':
+                Tile('empty', x, y)
+                level[y] = level[y][:x] + '#' + level[y][x + 1:]
+            elif level[y][x] == '*':
+                # Tile('empty', x, y)
+                AnimatedSprite('portal', load_image("portal.png", -1), 4, 1, x * tile_width, y * tile_height)
     # вернем игрока, а также размер поля в клетках
-    return new_player, x, y
+    return new_player, x, y, level
+
+
+class AnimatedSprite(pygame.sprite.Sprite):
+    def __init__(self, type, sheet, columns, rows, x, y):
+        if type == 'portal':
+            super().__init__(all_sprites, portals)
+        else:
+            super().__init__(all_sprites)
+        self.frames = []
+        self.cut_sheet(sheet, columns, rows)
+        self.cur_frame = 0
+        self.iter = 0
+        self.image = self.frames[self.cur_frame]
+        self.rect = self.rect.move(x, y)
+        self.rect_x, self.rect_y = x, y
+
+    def cut_sheet(self, sheet, columns, rows):
+        self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
+                                sheet.get_height() // rows)
+        for j in range(rows):
+            for i in range(columns):
+                frame_location = (self.rect.w * i, self.rect.h * j)
+                self.frames.append(sheet.subsurface(pygame.Rect(
+                    frame_location, self.rect.size)))
+
+    def update(self):
+        self.iter = (self.iter + 1) % 10
+        if self.iter == 0:
+            self.cur_frame = (self.cur_frame + 1) % len(self.frames)
+        self.image = self.frames[self.cur_frame]
+        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.rect = self.image.get_rect()
+        self.rect = self.rect.move(self.rect_x, self.rect_y)
+        print(self.rect.x, self.rect.y)
 
 
 class Tile(pygame.sprite.Sprite):
@@ -162,8 +202,6 @@ class Camera:
 
         self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
         self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
-        if self.dx != 0 or self.dy != 0:
-            print(self.dx, self.dy)
 
 
 if __name__ == '__main__':
@@ -171,6 +209,7 @@ if __name__ == '__main__':
     # группы спрайтов
     all_sprites = pygame.sprite.Group()
     tiles_group = pygame.sprite.Group()
+    portals = pygame.sprite.Group()
     player_group = pygame.sprite.Group()
 
     tile_images = {
@@ -190,8 +229,7 @@ if __name__ == '__main__':
 
     start_screen()
 
-    level_map = load_level('map2.txt')
-    player, level_x, level_y = \
+    player, level_x, level_y, level_map = \
         generate_level(load_level('map2.txt'))
 
     size = width, height = 11 * tile_width, 11 * tile_height
@@ -224,9 +262,12 @@ if __name__ == '__main__':
             camera.apply(sprite)
 
         screen.fill((0, 0, 0))
+
+        portals.update()
+
         all_sprites.draw(screen)
-        tiles_group.draw(screen)
         player_group.draw(screen)
+        portals.draw(screen)
 
         pygame.display.flip()
         clock.tick(FPS)
