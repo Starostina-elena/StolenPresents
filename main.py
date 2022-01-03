@@ -120,7 +120,7 @@ def generate_level(level):
                 Tile('empty', x, y)
                 level[y] = level[y][:x] + '#' + level[y][x + 1:]
             elif level[y][x] == '*':
-                # Tile('empty', x, y)
+                Tile('empty', x, y)
                 AnimatedSprite('portal', load_image("portal.png", -1), 4, 1, x * tile_width, y * tile_height)
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y, level
@@ -138,7 +138,6 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.iter = 0
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(x, y)
-        self.rect_x, self.rect_y = x, y
 
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -150,14 +149,14 @@ class AnimatedSprite(pygame.sprite.Sprite):
                     frame_location, self.rect.size)))
 
     def update(self):
+        x, y = self.rect.x, self.rect.y
         self.iter = (self.iter + 1) % 10
         if self.iter == 0:
             self.cur_frame = (self.cur_frame + 1) % len(self.frames)
         self.image = self.frames[self.cur_frame]
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()
-        self.rect = self.rect.move(self.rect_x, self.rect_y)
-        print(self.rect.x, self.rect.y)
+        self.rect = self.rect.move(x, y)
 
 
 class Tile(pygame.sprite.Sprite):
