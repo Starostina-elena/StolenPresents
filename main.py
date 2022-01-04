@@ -2,8 +2,18 @@ import os
 import sys
 
 import pygame
+import pygame_gui
+
+from random import shuffle
+
 
 FPS = 60
+
+
+def tic_tac_toe():
+
+    print('Гугл сказал, что крестики-нолики на английском - tic-tac-toe')
+    print('В общем, здесь игра в крестики-нолики. Будет')
 
 
 def terminate():
@@ -72,23 +82,84 @@ def load_image(name, colorkey=0, transform=None):
     return image
 
 
+def prepare_movement():
+
+    global player_stands_on_portal, confirmation_mini_game_dialog
+
+    if directions['right']:
+        animation()
+        if not pygame.sprite.spritecollideany(player, portals) or player_stands_on_portal:
+            move(player, 'right')
+            if not pygame.sprite.spritecollideany(player, portals):
+                player_stands_on_portal = False
+                if confirmation_mini_game_dialog is not None:
+                    confirmation_mini_game_dialog.kill()
+                    confirmation_mini_game_dialog = None
+        else:
+            create_confirmation_mini_game_dialog()
+    if directions['left']:
+        animation()
+        if not pygame.sprite.spritecollideany(player, portals) or player_stands_on_portal:
+            move(player, 'left')
+            if not pygame.sprite.spritecollideany(player, portals):
+                player_stands_on_portal = False
+                if confirmation_mini_game_dialog is not None:
+                    confirmation_mini_game_dialog.kill()
+                    confirmation_mini_game_dialog = None
+        else:
+            create_confirmation_mini_game_dialog()
+    if directions['up']:
+        animation()
+        if not pygame.sprite.spritecollideany(player, portals) or player_stands_on_portal:
+            move(player, 'up')
+            if not pygame.sprite.spritecollideany(player, portals):
+                player_stands_on_portal = False
+                if confirmation_mini_game_dialog is not None:
+                    confirmation_mini_game_dialog.kill()
+                    confirmation_mini_game_dialog = None
+        else:
+            create_confirmation_mini_game_dialog()
+    if directions['down']:
+        animation()
+        if not pygame.sprite.spritecollideany(player, portals) or player_stands_on_portal:
+            move(player, 'down')
+            if not pygame.sprite.spritecollideany(player, portals):
+                player_stands_on_portal = False
+                if confirmation_mini_game_dialog is not None:
+                    confirmation_mini_game_dialog.kill()
+                    confirmation_mini_game_dialog = None
+        else:
+            create_confirmation_mini_game_dialog()
+
+
+def create_confirmation_mini_game_dialog():
+
+    global confirmation_mini_game_dialog, player_stands_on_portal, current_game
+
+    for i in portals:
+        if pygame.sprite.collide_rect(player, i):
+            current_game = i.game
+
+    confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
+        rect=pygame.Rect((0, 0), (300, 200)),
+        manager=manager,
+        window_title='Подтверждение',
+        action_long_desc=f'<font color="00FF00">Вы уверены, что хотите начать игру "{current_game}"?</font>',
+        action_short_name='OK',
+        blocking=True
+    )
+    confirmation_mini_game_dialog.background_colour = pygame.color.Color((0, 200, 100))
+    confirmation_mini_game_dialog.confirmation_text.background_colour = pygame.color.Color((255, 255, 255))
+    confirmation_mini_game_dialog.confirmation_text.rebuild()
+    confirmation_mini_game_dialog.rebuild()
+    player_stands_on_portal = True
+
+
 def move(hero, movement):
     x, y = hero.pos
     global level_x
     global level_y
 
-    # Я закомментила принты, тк они иногда ломают игру
-    # print(level_map[x][y - 1])
-    # print(level_map[x][y + 1])
-    # print(level_map[x - 1][y])
-    # print(level_map[x][y + 1])
-    # print()
-
-    # TODO: Может, не стоит оставлять вот эти ифы с or?
-    # Просто если добавим потом еще какие то значки, придется усложнять or
-    # Как вариант проверять что эта штука не равна решетке
-    # Можно создать группу спрайтов со стенами и прочими препятствиями и
-    # проверять что игрок не сталкивается ни с чем из этой группы при перемещении
     if movement == "up":
         hero.move((0, -0.05))
     elif movement == "down":
@@ -100,6 +171,9 @@ def move(hero, movement):
 
 
 def generate_level(level):
+
+    global MINI_GAMES
+
     new_player, x, y = None, None, None
     for y in range(len(level)):
         for x in range(len(level[y])):
@@ -115,13 +189,15 @@ def generate_level(level):
                 level[y] = level[y][:x] + '#' + level[y][x + 1:]
             elif level[y][x] == '*':
                 Tile('empty', x, y)
-                AnimatedSprite('portal', load_image("portal.png", -1), 4, 1, x * tile_width, y * tile_height)
+                AnimatedSprite('portal', load_image("portal.png", -1), 4, 1, x * tile_width, y * tile_height, MINI_GAMES[0])
+                del MINI_GAMES[0]
+
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y, level
 
 
 class AnimatedSprite(pygame.sprite.Sprite):
-    def __init__(self, type, sheet, columns, rows, x, y):
+    def __init__(self, type, sheet, columns, rows, x, y, game):
         if type == 'portal':
             super().__init__(all_sprites, portals)
         else:
@@ -132,6 +208,8 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.iter = 0
         self.image = self.frames[self.cur_frame]
         self.rect = self.rect.move(x, y)
+
+        self.game = game
 
     def cut_sheet(self, sheet, columns, rows):
         self.rect = pygame.Rect(0, 0, sheet.get_width() // columns,
@@ -225,6 +303,17 @@ class Camera:
 
 
 if __name__ == '__main__':
+
+    MINI_GAMES = ['крестики-нолики',
+                  'тетрис',
+                  'змейка',
+                  'сапёр',
+                  '3 в ряд',
+                  '2048',
+                  'башня']
+    shuffle(MINI_GAMES)
+    current_game = None
+
     photos = ['Дед мороз.png', 'Дед мороз(кадр2).png', 'Дед мороз(кадр3).png',
               'Дед мороз(кадр2).png', 'Дед мороз.png', 'Дед мороз(кадр4).png',
               'Дед мороз(кадр5).png', 'Дед мороз(кадр4).png']
@@ -261,9 +350,16 @@ if __name__ == '__main__':
     size = width, height = 11 * tile_width, 11 * tile_height
     screen = pygame.display.set_mode(size)
 
+    manager = pygame_gui.UIManager((width, height))
+
     camera = Camera()
 
     directions = {"right": False, "left": False, "up": False, "down": False}
+
+    confirmation_mini_game_dialog = None
+
+    player_stands_on_portal = False
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -289,18 +385,15 @@ if __name__ == '__main__':
                     directions['up'] = False
                 elif event.key == pygame.K_DOWN:
                     directions['down'] = False
-        if directions['right']:
-            animation()
-            move(player, 'right')
-        if directions['left']:
-            animation()
-            move(player, 'left')
-        if directions['up']:
-            animation()
-            move(player, 'up')
-        if directions['down']:
-            animation()
-            move(player, 'down')
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
+                    if current_game == 'крестики-нолики':
+                        tic_tac_toe()
+
+            manager.process_events(event)
+        manager.update(60 / 1000)
+
+        prepare_movement()
 
         camera.update(player)
         # обновляем положение всех спрайтов
@@ -314,6 +407,8 @@ if __name__ == '__main__':
         all_sprites.draw(screen)
         player_group.draw(screen)
         portals.draw(screen)
+
+        manager.draw_ui(screen)
 
         pygame.display.flip()
         clock.tick(FPS)
