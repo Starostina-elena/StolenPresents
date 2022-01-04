@@ -363,6 +363,9 @@ if __name__ == '__main__':
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('StolenPresents')
 
+    pygame.mixer.music.load('data/Jingle Bells.mp3')
+    pygame.mixer.music.play(loops=-1)
+
     clock = pygame.time.Clock()
 
     start_screen()
