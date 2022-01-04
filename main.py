@@ -318,7 +318,6 @@ if __name__ == '__main__':
                   '3 в ряд',
                   '2048',
                   'башня']
-    MINI_GAMES = ['крестики-нолики', 'крестики-нолики']
     shuffle(MINI_GAMES)
     current_game = None
 

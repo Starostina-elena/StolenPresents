@@ -59,7 +59,7 @@ class Board:
         font = pygame.font.Font(None, 80)
         string_rendered = font.render(message, True, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
-        intro_rect.x, intro_rect.y = width // 2 - intro_rect.width // 2 - 40, 100
+        intro_rect.x, intro_rect.y = width // 2 - intro_rect.width // 2, 100
         screen.blit(string_rendered, intro_rect)
         print('ok')
 
