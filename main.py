@@ -14,8 +14,7 @@ FPS = 60
 
 def tic_tac_toe():
 
-    print('Гугл сказал, что крестики-нолики на английском - tic-tac-toe')
-    print('В общем, здесь игра в крестики-нолики. Будет')
+    global width, height, screen, size
 
     mini_game1.start()
 
@@ -318,6 +317,7 @@ if __name__ == '__main__':
                   '3 в ряд',
                   '2048',
                   'башня']
+    MINI_GAMES = ['крестики-нолики', 'крестики-нолики']
     shuffle(MINI_GAMES)
     current_game = None
 
@@ -396,6 +396,9 @@ if __name__ == '__main__':
                 if event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
                     if current_game == 'крестики-нолики':
                         tic_tac_toe()
+                        for i in portals:
+                            if i.game == 'крестики-нолики':
+                                i.kill()
 
             manager.process_events(event)
         manager.update(60 / 1000)
@@ -412,8 +415,8 @@ if __name__ == '__main__':
         portals.update()
 
         all_sprites.draw(screen)
-        player_group.draw(screen)
         portals.draw(screen)
+        player_group.draw(screen)
 
         manager.draw_ui(screen)
 
