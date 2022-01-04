@@ -37,6 +37,7 @@ def start_screen():
     font = pygame.font.Font(None, 30)
     text_coord = 50
     for line in intro_text:
+        print(line)
         string_rendered = font.render(line, 1, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
@@ -84,7 +85,7 @@ def load_image(name, colorkey=0, transform=None):
     else:
         image = image.convert_alpha()
     if transform:
-        image = pygame.transform.scale(image, (45, 45))
+        image = pygame.transform.scale(image, (40, 40))
     return image
 
 
