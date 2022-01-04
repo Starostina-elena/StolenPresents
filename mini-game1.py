@@ -24,9 +24,9 @@ def check_field(field):
         is_winner = True
     if is_winner:
         if winner == 1:
-            winner = 'Крестик'
+            winner = 'Выиграл крестик'
         else:
-            winner = 'Нолик'
+            winner = 'Выиграл нолик'
         return winner
     else:
         is_not_winner = False
@@ -49,7 +49,6 @@ class Board:
         self.left = 250
         self.top = 250
         self.cell_size = 80
-        # self.click_count = 0
         self.game_status = True
         self.colors = [(0, 0, 0), (255, 0, 0), (0, 0, 255)]
 
