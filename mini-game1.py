@@ -34,7 +34,7 @@ def check_field(field):
             if i.count(0) != 0:
                 is_not_winner = True
                 break
-        if not(is_not_winner):
+        if not (is_not_winner):
             winner = 'Ничья'
             return winner
 
@@ -53,22 +53,13 @@ class Board:
         self.game_status = True
         self.colors = [(0, 0, 0), (255, 0, 0), (0, 0, 255)]
 
-
     def text(self, message):
-        intro_text = ''
-        text_coord = 50
-        print(message)
-        font = pygame.font.Font(None, 30)
-        string_rendered = font.render(message, 1, pygame.Color('white'))
+        font = pygame.font.Font(None, 80)
+        string_rendered = font.render(message, True, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
-        text_coord += 10
-        print(text_coord)
-        intro_rect.top = text_coord
-        intro_rect.x = 10
-        text_coord += intro_rect.height
+        intro_rect.x, intro_rect.y = width // 2 - intro_rect.width // 2 - 40, 100
         screen.blit(string_rendered, intro_rect)
         print('ok')
-
 
     # настройка внешнего вида
     def set_view(self, left, top, cell_size):
@@ -121,18 +112,17 @@ class Board:
         if self.game_status:
             if self.board[cell_coords[0]][cell_coords[1]] == 0:
                 self.board[cell_coords[0]][cell_coords[1]] = 1
-            if not(check_field(self.board)):
+            if not (check_field(self.board)):
                 self.bot_turn()
             else:
                 self.game_status = False
                 print(check_field(self.board))
                 self.text(check_field(self.board))
 
-
     def bot_turn(self):
         n = len(self.board)
         is_turn = False
-        if not(is_turn):
+        if not (is_turn):
             for i in range(n):
                 if self.board[i].count(2) == 2 and not (is_turn):
                     for j in range(len(self.board[i])):
@@ -141,21 +131,21 @@ class Board:
                             is_turn = True
                             break
                 if [self.board[0][i], self.board[1][i],
-                        self.board[2][i]].count(2) == 2 and not (is_turn):
+                    self.board[2][i]].count(2) == 2 and not (is_turn):
                     for j in range(len(self.board[i])):
                         if self.board[j][i] != 2 and self.board[j][i] != 1:
                             self.board[j][i] = 2
                             is_turn = True
                             break
             if [self.board[0][0], self.board[1][1],
-                    self.board[2][2]].count(2) == 2 and not (is_turn):
+                self.board[2][2]].count(2) == 2 and not (is_turn):
                 for i in range(3):
                     if self.board[i][i] != 2 and self.board[i][i] != 1:
                         self.board[i][i] = 2
                         is_turn = True
                         break
             if [self.board[0][2], self.board[1][1],
-                    self.board[2][0]].count(2) == 2 and not (is_turn):
+                self.board[2][0]].count(2) == 2 and not (is_turn):
                 for i in range(3):
                     if self.board[i][abs(i - 2)] != 2 and \
                             self.board[i][abs(i - 2)] != 1:
@@ -170,28 +160,28 @@ class Board:
                         is_turn = True
                         break
             if [self.board[0][i], self.board[1][i],
-                    self.board[2][i]].count(1) == 2 and not (is_turn):
+                self.board[2][i]].count(1) == 2 and not (is_turn):
                 for j in range(len(self.board[i])):
                     if self.board[j][i] != 2 and self.board[j][i] != 1:
                         self.board[j][i] = 2
                         is_turn = True
                         break
         if [self.board[0][0], self.board[1][1],
-                self.board[2][2]].count(1) == 2 and not (is_turn):
+            self.board[2][2]].count(1) == 2 and not (is_turn):
             for i in range(3):
                 if self.board[i][i] != 2 and self.board[i][i] != 1:
                     self.board[i][i] = 2
                     is_turn = True
                     break
         if [self.board[0][2], self.board[1][1],
-                self.board[2][0]].count(1) == 2 and not (is_turn):
+            self.board[2][0]].count(1) == 2 and not (is_turn):
             for i in range(3):
                 if self.board[i][abs(i - 2)] != 2 and \
                         self.board[i][abs(i - 2)] != 1:
                     self.board[i][abs(i - 2)] = 2
                     is_turn = True
                     break
-        if not(is_turn):
+        if not (is_turn):
             for i in range(n):
                 if self.board[i].count(2) > 0 and not (is_turn):
                     for j in range(len(self.board[i])):
@@ -200,28 +190,28 @@ class Board:
                             is_turn = True
                             break
                 if [self.board[0][i], self.board[1][i],
-                        self.board[2][i]].count(2) > 0 and not (is_turn):
+                    self.board[2][i]].count(2) > 0 and not (is_turn):
                     for j in range(len(self.board[i])):
                         if self.board[j][i] != 2 and self.board[j][i] != 1:
                             self.board[j][i] = 2
                             is_turn = True
                             break
             if [self.board[0][0], self.board[1][1],
-                    self.board[2][2]].count(2) > 0 and not (is_turn):
+                self.board[2][2]].count(2) > 0 and not (is_turn):
                 for i in range(3):
                     if self.board[i][i] != 2 and self.board[i][i] != 1:
                         self.board[i][i] = 2
                         is_turn = True
                         break
             if [self.board[0][2], self.board[1][1],
-                    self.board[2][0]].count(2) > 0 and not (is_turn):
+                self.board[2][0]].count(2) > 0 and not (is_turn):
                 for i in range(3):
                     if self.board[i][abs(i - 2)] != 2 and \
                             self.board[i][abs(i - 2)] != 1:
                         self.board[i][abs(i - 2)] = 2
                         is_turn = True
                         break
-        if not(is_turn):
+        if not (is_turn):
             first_turn = []
             for i in range(3):
                 for j in range(3):
@@ -234,6 +224,7 @@ class Board:
             self.game_status = False
             print(check_field(self.board))
             self.text(check_field(self.board))
+
 
 size = width, height = 800, 600
 screen = pygame.display.set_mode(size)
@@ -249,6 +240,6 @@ while running:
                 board.get_click(event.pos)
             except Exception:
                 pass
-    screen.fill((0, 0, 0))
+    # screen.fill((0, 0, 0))
     board.render(screen)
     pygame.display.flip()
