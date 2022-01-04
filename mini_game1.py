@@ -1,6 +1,7 @@
 import random
 
 import pygame
+import pygame_gui
 
 
 def check_field(field):
@@ -236,6 +237,23 @@ def start():
     screen = pygame.display.set_mode(size)
     board = Board(3, 3)
     running = True
+
+    manager = pygame_gui.UIManager((width, height))
+
+    exit_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((750, 0), (50, 50)),
+        text='X',
+        manager=manager
+    )
+    exit_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    exit_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    exit_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    exit_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    exit_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    exit_button.colours['normal_text'] = pygame.Color((255, 0, 0, 255))
+    exit_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
+    exit_button.rebuild()
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -245,5 +263,20 @@ def start():
                     board.get_click(event.pos)
                 except Exception:
                     pass
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == exit_button:
+                        running = False
+            manager.process_events(event)
+
+        manager.update(60 / 1000)
+
         board.render(screen)
+
+        manager.draw_ui(screen)
+
         pygame.display.flip()
+
+
+# pygame.init()
+# start()
