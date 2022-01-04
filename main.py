@@ -6,6 +6,8 @@ import pygame_gui
 
 from random import shuffle
 
+import mini_game1
+
 
 FPS = 60
 
@@ -14,6 +16,11 @@ def tic_tac_toe():
 
     print('Гугл сказал, что крестики-нолики на английском - tic-tac-toe')
     print('В общем, здесь игра в крестики-нолики. Будет')
+
+    mini_game1.start()
+
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
 
 
 def terminate():
@@ -311,6 +318,7 @@ if __name__ == '__main__':
                   '3 в ряд',
                   '2048',
                   'башня']
+    MINI_GAMES = ['крестики-нолики', 'крестики-нолики']
     shuffle(MINI_GAMES)
     current_game = None
 

@@ -54,6 +54,9 @@ class Board:
         self.colors = [(0, 0, 0), (255, 0, 0), (0, 0, 255)]
 
     def text(self, message):
+
+        global width, screen
+
         font = pygame.font.Font(None, 80)
         string_rendered = font.render(message, True, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
@@ -226,20 +229,22 @@ class Board:
             self.text(check_field(self.board))
 
 
-size = width, height = 800, 600
-screen = pygame.display.set_mode(size)
-pygame.init()
-board = Board(3, 3)
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            try:
-                board.get_click(event.pos)
-            except Exception:
-                pass
-    # screen.fill((0, 0, 0))
-    board.render(screen)
-    pygame.display.flip()
+def start():
+
+    global width, height, screen
+
+    size = width, height = 800, 600
+    screen = pygame.display.set_mode(size)
+    board = Board(3, 3)
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                try:
+                    board.get_click(event.pos)
+                except Exception:
+                    pass
+        board.render(screen)
+        pygame.display.flip()
