@@ -281,7 +281,7 @@ class Player(pygame.sprite.Sprite):
         self.image = player_image
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
+            tile_width * pos_x + 5, tile_height * pos_y + 5)
 
     def move(self, coords):
         self.rect.x += coords[0] * tile_width
