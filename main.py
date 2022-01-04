@@ -34,7 +34,7 @@ def start_screen():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.KEYDOWN or \
-                event.type == pygame.MOUSEBUTTONDOWN:
+                    event.type == pygame.MOUSEBUTTONDOWN:
                 return
         pygame.display.flip()
         clock.tick(FPS)
@@ -152,6 +152,7 @@ class AnimatedSprite(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect = self.rect.move(x, y)
 
+
 def animation():
     global animation_n
     global animation_i
@@ -203,6 +204,7 @@ class Player(pygame.sprite.Sprite):
 
     def change_picture(self, n):
         self.image = animation_set[n]
+
 
 class Camera:
 
@@ -315,4 +317,3 @@ if __name__ == '__main__':
 
         pygame.display.flip()
         clock.tick(FPS)
-
