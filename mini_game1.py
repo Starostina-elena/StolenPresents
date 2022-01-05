@@ -1,4 +1,6 @@
+import os
 import random
+import sys
 
 import pygame
 import pygame_gui
@@ -40,6 +42,26 @@ def check_field(field):
             return winner
 
 
+def load_image(name, colorkey=-1, transform=None):
+    fullname = os.path.join('data', name)
+    # если файл не существует, то выходим
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname)
+    if colorkey is not None:
+        if colorkey == -1:
+            colorkey = image.get_at((0, 0))
+        image.set_colorkey(colorkey)
+    else:
+        image = image.convert_alpha()
+    if transform:
+        image = pygame.transform.scale(image, (70, 75))
+    else:
+        image = pygame.transform.scale(image, (245, 250))
+    return image
+
+
 class Board:
     # создание поля
     def __init__(self, width, height):
@@ -71,34 +93,34 @@ class Board:
         self.cell_size = cell_size
 
     def render(self, screen):
+        all_sprites = pygame.sprite.Group()
+        sprite = pygame.sprite.Sprite()
+        sprite.image = load_image("поле.png", transform=False)
+        sprite.rect = sprite.image.get_rect()
+        all_sprites.add(sprite)
+        sprite.rect.x = self.left - 5
+        sprite.rect.y = self.top - 5
+        all_sprites.draw(screen)
         for x in range(self.width):
             for y in range(self.height):
                 if self.board[y][x] == 1:
-                    pygame.draw.line(screen, (0, 0, 255),
-                                     (self.left + x * self.cell_size + 2,
-                                      self.top + y * self.cell_size + 2),
-                                     (self.left + x * self.cell_size +
-                                      self.cell_size - 2, self.top + y *
-                                      self.cell_size + self.cell_size - 2),
-                                     width=2)
-                    pygame.draw.line(screen, (0, 0, 255),
-                                     (self.left + x * self.cell_size +
-                                      self.cell_size - 2, self.top + y *
-                                      self.cell_size + 2),
-                                     (self.left + x * self.cell_size + 2,
-                                      self.top + y * self.cell_size +
-                                      self.cell_size - 2), width=2)
+                    all_sprites = pygame.sprite.Group()
+                    sprite = pygame.sprite.Sprite()
+                    sprite.image = load_image("крестик.png", transform=True)
+                    sprite.rect = sprite.image.get_rect()
+                    all_sprites.add(sprite)
+                    sprite.rect.x = self.left + x * self.cell_size + 2
+                    sprite.rect.y = self.top + y * self.cell_size + 2
+                    all_sprites.draw(screen)
                 elif self.board[y][x] == 2:
-                    pygame.draw.circle(screen, (255, 0, 0),
-                                       (self.left + x * self.cell_size +
-                                        (self.cell_size / 2),
-                                        self.top + y * self.cell_size +
-                                        (self.cell_size / 2)),
-                                       self.cell_size / 2 - 2, width=2)
-                pygame.draw.rect(screen, (255, 255, 255),
-                                 (self.left + x * self.cell_size,
-                                  self.top + y * self.cell_size,
-                                  self.cell_size, self.cell_size), 1)
+                    all_sprites = pygame.sprite.Group()
+                    sprite = pygame.sprite.Sprite()
+                    sprite.image = load_image("нолик.png", transform=True)
+                    sprite.rect = sprite.image.get_rect()
+                    all_sprites.add(sprite)
+                    sprite.rect.x = self.left + x * self.cell_size + 2
+                    sprite.rect.y = self.top + y * self.cell_size + 2
+                    all_sprites.draw(screen)
 
     def get_click(self, mouse_pos):
         cell = self.get_cell(mouse_pos)
@@ -134,21 +156,21 @@ class Board:
                             is_turn = True
                             break
                 if [self.board[0][i], self.board[1][i],
-                    self.board[2][i]].count(2) == 2 and not (is_turn):
+                        self.board[2][i]].count(2) == 2 and not (is_turn):
                     for j in range(len(self.board[i])):
                         if self.board[j][i] != 2 and self.board[j][i] != 1:
                             self.board[j][i] = 2
                             is_turn = True
                             break
             if [self.board[0][0], self.board[1][1],
-                self.board[2][2]].count(2) == 2 and not (is_turn):
+                    self.board[2][2]].count(2) == 2 and not (is_turn):
                 for i in range(3):
                     if self.board[i][i] != 2 and self.board[i][i] != 1:
                         self.board[i][i] = 2
                         is_turn = True
                         break
             if [self.board[0][2], self.board[1][1],
-                self.board[2][0]].count(2) == 2 and not (is_turn):
+                    self.board[2][0]].count(2) == 2 and not (is_turn):
                 for i in range(3):
                     if self.board[i][abs(i - 2)] != 2 and \
                             self.board[i][abs(i - 2)] != 1:
@@ -163,21 +185,21 @@ class Board:
                         is_turn = True
                         break
             if [self.board[0][i], self.board[1][i],
-                self.board[2][i]].count(1) == 2 and not (is_turn):
+                    self.board[2][i]].count(1) == 2 and not (is_turn):
                 for j in range(len(self.board[i])):
                     if self.board[j][i] != 2 and self.board[j][i] != 1:
                         self.board[j][i] = 2
                         is_turn = True
                         break
         if [self.board[0][0], self.board[1][1],
-            self.board[2][2]].count(1) == 2 and not (is_turn):
+                self.board[2][2]].count(1) == 2 and not (is_turn):
             for i in range(3):
                 if self.board[i][i] != 2 and self.board[i][i] != 1:
                     self.board[i][i] = 2
                     is_turn = True
                     break
         if [self.board[0][2], self.board[1][1],
-            self.board[2][0]].count(1) == 2 and not (is_turn):
+                self.board[2][0]].count(1) == 2 and not (is_turn):
             for i in range(3):
                 if self.board[i][abs(i - 2)] != 2 and \
                         self.board[i][abs(i - 2)] != 1:
@@ -193,21 +215,21 @@ class Board:
                             is_turn = True
                             break
                 if [self.board[0][i], self.board[1][i],
-                    self.board[2][i]].count(2) > 0 and not (is_turn):
+                        self.board[2][i]].count(2) > 0 and not (is_turn):
                     for j in range(len(self.board[i])):
                         if self.board[j][i] != 2 and self.board[j][i] != 1:
                             self.board[j][i] = 2
                             is_turn = True
                             break
             if [self.board[0][0], self.board[1][1],
-                self.board[2][2]].count(2) > 0 and not (is_turn):
+                    self.board[2][2]].count(2) > 0 and not (is_turn):
                 for i in range(3):
                     if self.board[i][i] != 2 and self.board[i][i] != 1:
                         self.board[i][i] = 2
                         is_turn = True
                         break
             if [self.board[0][2], self.board[1][1],
-                self.board[2][0]].count(2) > 0 and not (is_turn):
+                    self.board[2][0]].count(2) > 0 and not (is_turn):
                 for i in range(3):
                     if self.board[i][abs(i - 2)] != 2 and \
                             self.board[i][abs(i - 2)] != 1:
@@ -230,7 +252,6 @@ class Board:
 
 
 def start():
-
     global width, height, screen
 
     size = width, height = 800, 600
@@ -276,7 +297,3 @@ def start():
         manager.draw_ui(screen)
 
         pygame.display.flip()
-
-
-# pygame.init()
-# start()
