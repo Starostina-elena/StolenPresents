@@ -7,6 +7,7 @@ import pygame_gui
 from random import shuffle
 
 import mini_game1
+import three_in_row
 
 
 FPS = 60
@@ -17,6 +18,16 @@ def tic_tac_toe():
     global width, height, screen, size
 
     mini_game1.start()
+
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+
+
+def game_three_in_row():
+
+    global width, height, screen, size
+
+    three_in_row.main()
 
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
@@ -334,7 +345,7 @@ if __name__ == '__main__':
                   '3 в ряд',
                   '2048',
                   'башня']
-    MINI_GAMES = ['крестики-нолики', 'крестики-нолики']
+    MINI_GAMES = ['крестики-нолики', '3 в ряд']
     shuffle(MINI_GAMES)
     current_game = None
 
@@ -418,6 +429,11 @@ if __name__ == '__main__':
                         tic_tac_toe()
                         for i in portals:
                             if i.game == 'крестики-нолики':
+                                i.kill()
+                    if current_game == '3 в ряд':
+                        game_three_in_row()
+                        for i in portals:
+                            if i.game == '3 в ряд':
                                 i.kill()
 
             manager.process_events(event)
