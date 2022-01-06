@@ -34,6 +34,8 @@ class Board:
 
         self.check_field_after_move()
 
+        self.stones_left = 60
+
     def set_view(self, left, top, cell_size):
         self.left = left
         self.top = top
@@ -58,6 +60,12 @@ class Board:
                                         (self.left + i * self.cell_size + 1, self.top + j * self.cell_size + 1,
                                          self.cell_size - 2, self.cell_size - 2))
 
+        if self.stones_left > 0:
+            self.show_message(f'Камней разрушить осталось: {self.stones_left}', 40)
+        else:
+            self.show_message('Вы победили')
+            self.blocked = True
+
     def check_field_after_move(self):
 
         something_changed = False
@@ -68,48 +76,58 @@ class Board:
                     try:
                         if self.board[j][i] == self.board[j][i + 1] == self.board[j][i + 2]:
                             something_changed = True
-                            if i + 4 < self.width and self.board[j][i] == self.board[j][i + 1] == self.board[j][i + 2] == \
+                            if i + 4 < self.width and self.board[j][i] == self.board[j][i + 1] == self.board[j][
+                                i + 2] == \
                                     self.board[j][i + 3] == self.board[j][i + 4]:
                                 for row in range(j, 0, -1):
                                     for column in range(i, i + 5):
                                         self.board[row][column] = self.board[row - 1][column]
                                 for column in range(i, i + 5):
                                     self.board[0][column] = randint(0, 9)
-                            elif i + 3 < self.width and self.board[j][i] == self.board[j][i + 1] == self.board[j][i + 2] ==\
+                                self.stones_left -= 5
+                            elif i + 3 < self.width and self.board[j][i] == self.board[j][i + 1] == self.board[j][
+                                i + 2] == \
                                     self.board[j][i + 3]:
                                 for row in range(j, 0, -1):
                                     for column in range(i, i + 4):
                                         self.board[row][column] = self.board[row - 1][column]
                                 for column in range(i, i + 4):
                                     self.board[0][column] = randint(0, 9)
+                                self.stones_left -= 4
                             else:
                                 for row in range(j, 0, -1):
                                     for column in range(i, i + 3):
                                         self.board[row][column] = self.board[row - 1][column]
                                 for column in range(i, i + 3):
                                     self.board[0][column] = randint(0, 9)
+                                self.stones_left -= 3
                     except Exception:
                         pass
                     try:
                         if self.board[j][i] == self.board[j + 1][i] == self.board[j + 2][i]:
                             something_changed = True
-                            if j + 4 < self.height and self.board[j][i] == self.board[j + 1][i] == self.board[j + 2][i] == \
+                            if j + 4 < self.height and self.board[j][i] == self.board[j + 1][i] == self.board[j + 2][
+                                i] == \
                                     self.board[j + 3][i] == self.board[j + 4][i]:
                                 for row in range(j + 4, 4, -1):
                                     self.board[row][i] = self.board[row - 5][i]
                                 for row in range(4, -1, -1):
                                     self.board[row][i] = randint(0, 9)
-                            elif j + 3 < self.height and self.board[j][i] == self.board[j + 1][i] == self.board[j + 2][i] \
+                                self.stones_left -= 5
+                            elif j + 3 < self.height and self.board[j][i] == self.board[j + 1][i] == self.board[j + 2][
+                                i] \
                                     == self.board[j + 3][i]:
                                 for row in range(j + 3, 3, -1):
                                     self.board[row][i] = self.board[row - 4][i]
                                 for row in range(3, -1, -1):
                                     self.board[row][i] = randint(0, 9)
+                                self.stones_left -= 4
                             else:
                                 for row in range(j + 2, 2, -1):
                                     self.board[row][i] = self.board[row - 3][i]
                                 for row in range(2, -1, -1):
                                     self.board[row][i] = randint(0, 9)
+                                self.stones_left -= 3
                     except Exception:
                         pass
 
@@ -165,11 +183,11 @@ class Board:
                     pass
         return False
 
-    def show_message(self, message):
+    def show_message(self, message, font_size=50):
 
         global width, screen
 
-        font = pygame.font.Font(None, 50)
+        font = pygame.font.Font(None, font_size)
         string_rendered = font.render(message, True, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
         intro_rect.x, intro_rect.y = width // 2 - intro_rect.width // 2, 10
@@ -187,7 +205,8 @@ class Board:
         if self.chosen_cell is not None:
             if cell_coords == self.chosen_cell:
                 self.chosen_cell = None
-            elif sorted([abs(cell_coords[0] - self.chosen_cell[0]), abs(cell_coords[1] - self.chosen_cell[1])]) == [0, 1]:
+            elif sorted([abs(cell_coords[0] - self.chosen_cell[0]), abs(cell_coords[1] - self.chosen_cell[1])]) == [0,
+                                                                                                                    1]:
                 self.board[self.chosen_cell[1]][self.chosen_cell[0]], self.board[cell_coords[1]][cell_coords[0]] = \
                     self.board[cell_coords[1]][cell_coords[0]], self.board[self.chosen_cell[1]][self.chosen_cell[0]]
                 if not self.check_field_after_move():
@@ -205,15 +224,91 @@ class Board:
             self.on_click(cell)
 
 
+def show_rules():
+
+    global manager
+
+    rules = pygame_gui.windows.UIMessageWindow(
+        rect=pygame.Rect((60, 60), (400, 350)),
+        manager=manager,
+        window_title='Правила',
+        html_message='<font color="black">Перемещайте фигуры, чтобы создавать последовательности из одинаковых ' + \
+                     'подряд идущих фигур длиной не менее 3. Перемещение фигур без успешного создания такой ' + \
+                     'последовательности невозможно. Разбейте 60 фигур, чтобы победить! Создание на поле ' + \
+                     'ситуации, когда перемещение невозможно, приведет к проигрышу</font>',
+    )
+    rules.dismiss_button.text = 'Закрыть'
+    rules.dismiss_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    rules.dismiss_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    rules.dismiss_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    rules.dismiss_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    rules.dismiss_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    rules.dismiss_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
+    rules.dismiss_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
+    rules.dismiss_button.rebuild()
+    rules.title_bar.colours['normal_bg'] = pygame.Color((0, 200, 100))
+    rules.title_bar.colours['hovered_bg'] = pygame.Color((0, 200, 100))
+    rules.title_bar.colours['active_bg'] = pygame.Color((0, 200, 100))
+    rules.title_bar.colours['normal_text'] = pygame.Color((0, 0, 0))
+    rules.title_bar.colours['hovered_text'] = pygame.Color((0, 0, 0))
+    rules.title_bar.colours['active_text'] = pygame.Color((0, 0, 0))
+    rules.title_bar.rebuild()
+    rules.background_colour = pygame.color.Color((0, 200, 100))
+    rules.text_block.background_colour = pygame.color.Color((255, 255, 255))
+    rules.text_block.rebuild()
+    rules.rebuild()
+
+
+def confirmation_exit_dialog():
+
+    global manager, confirmation_mini_game_dialog
+
+    confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
+        rect=pygame.Rect((200, 70), (300, 200)),
+        manager=manager,
+        window_title='Подтверждение',
+        action_long_desc=f'<font color="00FF00">Вы уверены, что хотите выйти? Вернуться в мини-игру будет невозможно</font>',
+        action_short_name='OK',
+        blocking=True
+    )
+    confirmation_mini_game_dialog.confirm_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    confirmation_mini_game_dialog.confirm_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.confirm_button.rebuild()
+    confirmation_mini_game_dialog.cancel_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    confirmation_mini_game_dialog.cancel_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.cancel_button.rebuild()
+    confirmation_mini_game_dialog.title_bar.colours['normal_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['hovered_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['active_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['normal_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.colours['hovered_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.colours['active_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.rebuild()
+    confirmation_mini_game_dialog.background_colour = pygame.color.Color((0, 200, 100))
+    confirmation_mini_game_dialog.confirmation_text.background_colour = pygame.color.Color((255, 255, 255))
+    confirmation_mini_game_dialog.confirmation_text.rebuild()
+    confirmation_mini_game_dialog.rebuild()
+
+
 def main():
 
-    global width, height, screen
+    global width, height, screen, manager, confirmation_mini_game_dialog
 
     width, height = 550, 550
     screen = pygame.display.set_mode((width, height))
 
-    board = Board(20, 20)
-    board.set_view(35, 55, 24)
+    board = Board(15, 15)
+    board.set_view(35, 55, 32)
     running = True
 
     manager = pygame_gui.UIManager((width, height))
@@ -232,6 +327,20 @@ def main():
     exit_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
     exit_button.rebuild()
 
+    help_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((0, 0), (50, 50)),
+        text='?',
+        manager=manager
+    )
+    help_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    help_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    help_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    help_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    help_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    help_button.colours['normal_text'] = pygame.Color((255, 0, 0, 255))
+    help_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
+    help_button.rebuild()
+
     fps = 20
     clock = pygame.time.Clock()
 
@@ -244,6 +353,11 @@ def main():
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == exit_button:
+                        confirmation_exit_dialog()
+                    elif event.ui_element == help_button:
+                        show_rules()
+                elif event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
+                    if event.ui_element == confirmation_mini_game_dialog:
                         running = False
             manager.process_events(event)
 
@@ -261,6 +375,5 @@ def main():
 
 
 if __name__ == '__main__':
-
     pygame.init()
     main()
