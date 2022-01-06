@@ -6,7 +6,7 @@ import pygame_gui
 
 from random import shuffle
 
-import mini_game1
+import tic_tac_toe_game
 import three_in_row
 
 
@@ -17,7 +17,7 @@ def tic_tac_toe():
 
     global width, height, screen, size, number_of_presents
 
-    if mini_game1.start():
+    if tic_tac_toe_game.start():
         number_of_presents += 1
 
     size = width, height = 550, 550

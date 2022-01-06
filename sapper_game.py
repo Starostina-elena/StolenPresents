@@ -1,51 +1,10 @@
 import os
 import random
 import sys
+from copy import deepcopy
 
 import pygame
 import pygame_gui
-
-
-def check_field(field):
-    
-    global status_win
-    
-    n = len(field)
-    is_winner = False
-    for i in range(n):
-        if not is_winner:
-            if field[i][0] == field[i][1] == field[i][2] != 0:
-                winner = field[i][0]
-                is_winner = True
-                break
-            if field[0][i] == field[1][i] == field[2][i] != 0:
-                winner = field[0][i]
-                is_winner = True
-                break
-    if field[0][0] == field[1][1] == field[2][2] != 0:
-        winner = field[0][0]
-        is_winner = True
-    if field[0][2] == field[1][1] == field[2][0] != 0:
-        winner = field[0][2]
-        is_winner = True
-    if is_winner:
-        if winner == 1:
-            winner = 'Выиграл крестик'
-            if not status_win:
-                show_rules('Благодаря вам Дед Мороз получил 1 подарок!')
-            status_win = True
-        else:
-            winner = 'Выиграл нолик'
-        return winner
-    else:
-        is_not_winner = False
-        for i in field:
-            if i.count(0) != 0:
-                is_not_winner = True
-                return ''
-        if not (is_not_winner):
-            winner = 'Ничья'
-            return winner
 
 
 def load_image(name, colorkey=-1, transform=None):
@@ -64,7 +23,7 @@ def load_image(name, colorkey=-1, transform=None):
     if transform:
         image = pygame.transform.scale(image, (70, 75))
     else:
-        image = pygame.transform.scale(image, (245, 250))
+        image = pygame.transform.scale(image, (250, 250))
     return image
 
 
@@ -73,13 +32,19 @@ class Board:
     def __init__(self, width, height):
         self.width = width
         self.height = height
-        self.board = [[0] * width for _ in range(height)]
+        self.board = [[''] * width for _ in range(height)]
+        self.show_board = deepcopy(self.board)
+
         # значения по умолчанию
         self.left = 250
         self.top = 250
         self.cell_size = 80
         self.game_status = True
         self.colors = [(0, 0, 0), (255, 0, 0), (0, 0, 255)]
+        self.n_bomb = 2
+        self.generation_bomb()
+        self.place_number()
+        print(self.board)
 
     def text(self, message):
 
@@ -91,6 +56,9 @@ class Board:
         intro_rect.x, intro_rect.y = width // 2 - intro_rect.width // 2, 10
         screen.blit(string_rendered, intro_rect)
 
+    def generation_bomb(self):
+        for i in range(self.n_bomb):
+            self.board[random.randint(0, 3 - 1)][random.randint(0, 3 - 1)] = 'b'
     # настройка внешнего вида
     def set_view(self, left, top, cell_size):
         self.left = left
@@ -104,29 +72,26 @@ class Board:
         sprite.rect = sprite.image.get_rect()
         all_sprites.add(sprite)
         sprite.rect.x = self.left - 5
-        sprite.rect.y = self.top - 5
+        sprite.rect.y = self.top - 2
         all_sprites.draw(screen)
         for x in range(self.width):
             for y in range(self.height):
-                if self.board[y][x] == 1:
-                    all_sprites = pygame.sprite.Group()
-                    sprite = pygame.sprite.Sprite()
-                    sprite.image = load_image("крестик.png", transform=True)
-                    sprite.rect = sprite.image.get_rect()
-                    all_sprites.add(sprite)
-                    sprite.rect.x = self.left + x * self.cell_size + 2
-                    sprite.rect.y = self.top + y * self.cell_size + 2
-                    all_sprites.draw(screen)
-                elif self.board[y][x] == 2:
-                    all_sprites = pygame.sprite.Group()
-                    sprite = pygame.sprite.Sprite()
-                    sprite.image = load_image("нолик.png", transform=True)
-                    sprite.rect = sprite.image.get_rect()
-                    all_sprites.add(sprite)
-                    sprite.rect.x = self.left + x * self.cell_size + 2
-                    sprite.rect.y = self.top + y * self.cell_size + 2
-                    all_sprites.draw(screen)
-        self.text(check_field(self.board))
+                if self.show_board[y][x] == '':
+                    pygame.draw.rect(screen, (255, 255, 255),
+                                     (self.left + x * self.cell_size + 7,
+                                      self.top + y * self.cell_size + 7,
+                                      self.cell_size - 7, self.cell_size - 7), 0)
+                if self.show_board[y][x] == 'e':
+                    pygame.draw.rect(screen, (0, 0, 0),
+                                     (self.left + x * self.cell_size + 7,
+                                      self.top + y * self.cell_size + 7,
+                                      self.cell_size - 7, self.cell_size - 7), 0)
+                #
+                if self.show_board[y][x].isdigit() and \
+                    self.show_board[y][x].isdigit() != '0':
+                    self.text(self.show_board[y][x],
+                              self.left + x * self.cell_size + 30,
+                              self.top + y * self.cell_size + 25)
 
     def get_click(self, mouse_pos):
         cell = self.get_cell(mouse_pos)
@@ -140,121 +105,69 @@ class Board:
         return (cell_y, cell_x)
 
     def on_click(self, cell_coords):
+        print(cell_coords[0], cell_coords[1])
         if self.game_status:
-            if self.board[cell_coords[0]][cell_coords[1]] == 0:
-                self.board[cell_coords[0]][cell_coords[1]] = 1
-            if not (check_field(self.board)):
-                self.bot_turn()
-            else:
-                self.game_status = False
-                print(check_field(self.board))
-                self.text(check_field(self.board))
 
-    def bot_turn(self):
-        n = len(self.board)
-        is_turn = False
-        if not (is_turn):
-            for i in range(n):
-                if self.board[i].count(2) == 2 and not (is_turn):
-                    for j in range(len(self.board[i])):
-                        if self.board[i][j] != 2 and self.board[i][j] != 1:
-                            self.board[i][j] = 2
-                            is_turn = True
-                            break
-                if [self.board[0][i], self.board[1][i],
-                        self.board[2][i]].count(2) == 2 and not (is_turn):
-                    for j in range(len(self.board[i])):
-                        if self.board[j][i] != 2 and self.board[j][i] != 1:
-                            self.board[j][i] = 2
-                            is_turn = True
-                            break
-            if [self.board[0][0], self.board[1][1],
-                    self.board[2][2]].count(2) == 2 and not (is_turn):
-                for i in range(3):
-                    if self.board[i][i] != 2 and self.board[i][i] != 1:
-                        self.board[i][i] = 2
-                        is_turn = True
-                        break
-            if [self.board[0][2], self.board[1][1],
-                    self.board[2][0]].count(2) == 2 and not (is_turn):
-                for i in range(3):
-                    if self.board[i][abs(i - 2)] != 2 and \
-                            self.board[i][abs(i - 2)] != 1:
-                        self.board[i][abs(i - 2)] = 2
-                        is_turn = True
-                        break
-        for i in range(n):
-            if self.board[i].count(1) == 2 and not (is_turn):
-                for j in range(len(self.board[i])):
-                    if self.board[i][j] != 2 and self.board[i][j] != 1:
-                        self.board[i][j] = 2
-                        is_turn = True
-                        break
-            if [self.board[0][i], self.board[1][i],
-                    self.board[2][i]].count(1) == 2 and not (is_turn):
-                for j in range(len(self.board[i])):
-                    if self.board[j][i] != 2 and self.board[j][i] != 1:
-                        self.board[j][i] = 2
-                        is_turn = True
-                        break
-        if [self.board[0][0], self.board[1][1],
-                self.board[2][2]].count(1) == 2 and not (is_turn):
-            for i in range(3):
-                if self.board[i][i] != 2 and self.board[i][i] != 1:
-                    self.board[i][i] = 2
-                    is_turn = True
-                    break
-        if [self.board[0][2], self.board[1][1],
-                self.board[2][0]].count(1) == 2 and not (is_turn):
-            for i in range(3):
-                if self.board[i][abs(i - 2)] != 2 and \
-                        self.board[i][abs(i - 2)] != 1:
-                    self.board[i][abs(i - 2)] = 2
-                    is_turn = True
-                    break
-        if not (is_turn):
-            for i in range(n):
-                if self.board[i].count(2) > 0 and not (is_turn):
-                    for j in range(len(self.board[i])):
-                        if self.board[i][j] != 2 and self.board[i][j] != 1:
-                            self.board[i][j] = 2
-                            is_turn = True
-                            break
-                if [self.board[0][i], self.board[1][i],
-                        self.board[2][i]].count(2) > 0 and not (is_turn):
-                    for j in range(len(self.board[i])):
-                        if self.board[j][i] != 2 and self.board[j][i] != 1:
-                            self.board[j][i] = 2
-                            is_turn = True
-                            break
-            if [self.board[0][0], self.board[1][1],
-                    self.board[2][2]].count(2) > 0 and not (is_turn):
-                for i in range(3):
-                    if self.board[i][i] != 2 and self.board[i][i] != 1:
-                        self.board[i][i] = 2
-                        is_turn = True
-                        break
-            if [self.board[0][2], self.board[1][1],
-                    self.board[2][0]].count(2) > 0 and not (is_turn):
-                for i in range(3):
-                    if self.board[i][abs(i - 2)] != 2 and \
-                            self.board[i][abs(i - 2)] != 1:
-                        self.board[i][abs(i - 2)] = 2
-                        is_turn = True
-                        break
-        if not (is_turn):
-            first_turn = []
-            for i in range(3):
-                for j in range(3):
-                    if self.board[i][j] == 0:
-                        first_turn.append([i, j])
-            turn_coord = random.choice(first_turn)
-            self.board[turn_coord[0]][turn_coord[1]] = 2
-            is_turn = True
-        if check_field(self.board):
-            self.game_status = False
-            print(check_field(self.board))
-            self.text(check_field(self.board))
+            # if self.show_board[cell_coords[0]][cell_coords[1]] == '':
+            #     self.show_board[cell_coords[0]][cell_coords[1]] = 'e'
+            if 0 <= cell_coords[0] < 3 and 0 <= cell_coords[1] < 3:
+                print(self.show_board)
+                if self.board[cell_coords[0]][cell_coords[1]] == '':
+                    print('зашёл')
+                    self.show_board[cell_coords[0]][cell_coords[1]] = '   '
+
+                    self.board[cell_coords[0]][cell_coords[1]] = '[*]'
+                    self.on_click((cell_coords[0] - 1, cell_coords[1]))
+                    self.on_click((cell_coords[0], cell_coords[1] - 1))
+                    self.on_click((cell_coords[0], cell_coords[1] + 1))
+                    self.on_click((cell_coords[0] + 1, cell_coords[1]))
+                else:
+                    if self.board[cell_coords[0]][cell_coords[1]].isdigit():
+                        self.show_board[cell_coords[0]][cell_coords[1]] = self.board[cell_coords[0]][cell_coords[1]]
+            # print(self.board)
+            # print(self.show_board)
+    def text(self, message, x, y):
+
+        global width, screen
+
+        font = pygame.font.Font(None, 40)
+        string_rendered = font.render(message, True, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        intro_rect.x, intro_rect.y = x, y
+        screen.blit(string_rendered, intro_rect)
+
+
+    def place_number(self):
+        for i in range(len(self.board)):
+            for j in range(len(self.board[i])):
+                if self.board[i][j] != 'b':
+                    count = 0
+                    if 0 <= i - 1 < 3 and 0 <= j - 1 < 3 and \
+                        self.board[i - 1][j - 1] == 'b':
+                        count += 1
+                    if 0 <= i - 1 < 3 and 0 <= j < 3 and \
+                        self.board[i - 1][j] == 'b':
+                        count += 1
+                    if 0 <= i - 1 < 3 and 0 <= j + 1 < 3 and \
+                        self.board[i - 1][j + 1] == 'b':
+                        count += 1
+                    if 0 <= i < 3 and 0 <= j - 1 < 3 and \
+                        self.board[i][j - 1] == 'b':
+                        count += 1
+                    if 0 <= i < 3 and 0 <= j + 1 < 3 and \
+                        self.board[i][j + 1] == 'b':
+                        count += 1
+                    if 0 <= i + 1 < 3 and 0 <= j - 1 < 3 and \
+                        self.board[i + 1][j - 1] == 'b':
+                        count += 1
+                    if 0 <= i + 1 < 3 and 0 <= j < 3 and \
+                        self.board[i + 1][j] == 'b':
+                        count += 1
+                    if 0 <= i + 1 < 3 and 0 <= j + 1 < 3 and \
+                        self.board[i + 1][j + 1] == 'b':
+                        count += 1
+                    if count != 0:
+                        self.board[i][j] = str(count)
 
 
 def confirmation_exit_dialog():
@@ -298,24 +211,16 @@ def confirmation_exit_dialog():
     confirmation_mini_game_dialog.rebuild()
 
 
-def show_rules(message=None):
+def show_rules():
 
     global manager
 
-    if message:
-        rules = pygame_gui.windows.UIMessageWindow(
-            rect=pygame.Rect((60, 60), (300, 175)),
-            manager=manager,
-            window_title='',
-            html_message=f'<font color="black">{message}</font>',
-        )
-    else:
-        rules = pygame_gui.windows.UIMessageWindow(
-            rect=pygame.Rect((60, 0), (400, 175)),
-            manager=manager,
-            window_title='Правила',
-            html_message='<font color="black">Играйте с компьютером: соберите ряд из трех крестиков, чтобы победить!'
-        )
+    rules = pygame_gui.windows.UIMessageWindow(
+        rect=pygame.Rect((60, 0), (400, 175)),
+        manager=manager,
+        window_title='Правила',
+        html_message='<font color="black">Играйте с компьютером: соберите ряд из трех крестиков, чтобы победить!'
+    )
     rules.dismiss_button.text = 'Закрыть'
     rules.dismiss_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
     rules.dismiss_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
@@ -340,15 +245,13 @@ def show_rules(message=None):
 
 def start():
 
-    global width, height, screen, manager, confirmation_mini_game_dialog, status_win
+    global width, height, screen, manager, confirmation_mini_game_dialog
 
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
     board = Board(3, 3)
     board.set_view(155, 155, 80)
     running = True
-    
-    status_win = False
 
     manager = pygame_gui.UIManager((width, height))
 
@@ -409,9 +312,6 @@ def start():
         manager.draw_ui(screen)
 
         pygame.display.flip()
-    
-    return status_win
-
 
 if __name__ == '__main__':
 
