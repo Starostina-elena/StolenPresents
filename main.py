@@ -25,9 +25,10 @@ def tic_tac_toe():
 
 def game_three_in_row():
 
-    global width, height, screen, size
+    global width, height, screen, size, number_of_presents
 
-    three_in_row.main()
+    if three_in_row.main():
+        number_of_presents += 1
 
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
@@ -281,6 +282,18 @@ def animation():
         player.change_picture(animation_i)
 
 
+def draw_number_of_presents():
+
+    pygame.draw.rect(screen, 'white', (0, 0, 90, 45))
+    pygame.draw.rect(screen, 'black', (0, 0, 90, 45), 2)
+
+    font = pygame.font.Font(None, 50)
+    string_rendered = font.render(str(number_of_presents), True, pygame.Color((0, 140, 0)))
+    intro_rect = string_rendered.get_rect()
+    intro_rect.x, intro_rect.y = 12, 9
+    screen.blit(string_rendered, intro_rect)
+
+
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
         if tile_type == 'wall':
@@ -345,6 +358,8 @@ class Camera:
 
 if __name__ == '__main__':
 
+    number_of_presents = 0
+
     MINI_GAMES = ['крестики-нолики',
                   'тетрис',
                   'змейка',
@@ -374,6 +389,14 @@ if __name__ == '__main__':
         'empty': load_image('floors.jpg')
     }
     player_image = animation_set[animation_i]
+
+    present_image = pygame.sprite.Sprite()
+    present_image_group = pygame.sprite.Group()
+    present_image.image = load_image('present.jpg', -1)
+    present_image.image = pygame.transform.scale(present_image.image, (40, 40))
+    present_image.rect = present_image.image.get_rect()
+    present_image.rect.x, present_image.rect.y = 40, 2
+    present_image_group.add(present_image)
 
     tile_width = tile_height = 50
 
@@ -460,6 +483,10 @@ if __name__ == '__main__':
         all_sprites.draw(screen)
         portals.draw(screen)
         player_group.draw(screen)
+
+        draw_number_of_presents()
+
+        present_image_group.draw(screen)
 
         manager.draw_ui(screen)
 

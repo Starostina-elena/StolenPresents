@@ -35,6 +35,8 @@ class Board:
         self.check_field_after_move()
 
         self.stones_left = 60
+        
+        self.win = False
 
     def set_view(self, left, top, cell_size):
         self.left = left
@@ -64,6 +66,9 @@ class Board:
             self.show_message(f'Камней разрушить осталось: {self.stones_left}', 40)
         else:
             self.show_message('Вы победили')
+            if not self.win:
+                show_rules('Благодаря вам Дед Мороз нашел 1 подарок!')
+            self.win = True
             self.blocked = True
 
     def check_field_after_move(self):
@@ -224,19 +229,27 @@ class Board:
             self.on_click(cell)
 
 
-def show_rules():
+def show_rules(message=None):
 
     global manager
 
-    rules = pygame_gui.windows.UIMessageWindow(
-        rect=pygame.Rect((60, 60), (400, 350)),
-        manager=manager,
-        window_title='Правила',
-        html_message='<font color="black">Перемещайте фигуры, чтобы создавать последовательности из одинаковых ' + \
-                     'подряд идущих фигур длиной не менее 3. Перемещение фигур без успешного создания такой ' + \
-                     'последовательности невозможно. Разбейте 60 фигур, чтобы победить! Создание на поле ' + \
-                     'ситуации, когда перемещение невозможно, приведет к проигрышу</font>',
-    )
+    if message:
+        rules = pygame_gui.windows.UIMessageWindow(
+            rect=pygame.Rect((60, 60), (300, 175)),
+            manager=manager,
+            window_title='',
+            html_message=f'<font color="black">{message}</font>',
+        )
+    else:
+        rules = pygame_gui.windows.UIMessageWindow(
+            rect=pygame.Rect((60, 60), (400, 350)),
+            manager=manager,
+            window_title='Правила',
+            html_message='<font color="black">Перемещайте фигуры, чтобы создавать последовательности из одинаковых ' + \
+                         'подряд идущих фигур длиной не менее 3. Перемещение фигур без успешного создания такой ' + \
+                         'последовательности невозможно. Разбейте 60 фигур, чтобы победить! Создание на поле ' + \
+                         'ситуации, когда перемещение невозможно, приведет к проигрышу</font>',
+        )
     rules.dismiss_button.text = 'Закрыть'
     rules.dismiss_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
     rules.dismiss_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
@@ -372,6 +385,8 @@ def main():
 
         clock.tick(fps)
         pygame.display.flip()
+    
+    return board.win
 
 
 if __name__ == '__main__':
