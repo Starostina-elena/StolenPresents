@@ -182,6 +182,13 @@ def create_confirmation_mini_game_dialog():
     confirmation_mini_game_dialog.cancel_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
     confirmation_mini_game_dialog.cancel_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
     confirmation_mini_game_dialog.cancel_button.rebuild()
+    confirmation_mini_game_dialog.title_bar.colours['normal_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['hovered_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['active_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['normal_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.colours['hovered_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.colours['active_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.rebuild()
     confirmation_mini_game_dialog.background_colour = pygame.color.Color((0, 200, 100))
     confirmation_mini_game_dialog.confirmation_text.background_colour = pygame.color.Color((255, 255, 255))
     confirmation_mini_game_dialog.confirmation_text.rebuild()
@@ -430,7 +437,7 @@ if __name__ == '__main__':
                         for i in portals:
                             if i.game == 'крестики-нолики':
                                 i.kill()
-                    if current_game == '3 в ряд':
+                    elif current_game == '3 в ряд':
                         game_three_in_row()
                         for i in portals:
                             if i.game == '3 в ряд':
