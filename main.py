@@ -15,9 +15,10 @@ FPS = 60
 
 def tic_tac_toe():
 
-    global width, height, screen, size
+    global width, height, screen, size, number_of_presents
 
-    mini_game1.start()
+    if mini_game1.start():
+        number_of_presents += 1
 
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)

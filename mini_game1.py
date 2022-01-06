@@ -7,6 +7,9 @@ import pygame_gui
 
 
 def check_field(field):
+    
+    global status_win
+    
     n = len(field)
     is_winner = False
     for i in range(n):
@@ -28,6 +31,9 @@ def check_field(field):
     if is_winner:
         if winner == 1:
             winner = 'Выиграл крестик'
+            if not status_win:
+                show_rules('Благодаря вам Дед Мороз получил 1 подарок!')
+            status_win = True
         else:
             winner = 'Выиграл нолик'
         return winner
@@ -292,16 +298,24 @@ def confirmation_exit_dialog():
     confirmation_mini_game_dialog.rebuild()
 
 
-def show_rules():
+def show_rules(message=None):
 
     global manager
 
-    rules = pygame_gui.windows.UIMessageWindow(
-        rect=pygame.Rect((60, 0), (400, 175)),
-        manager=manager,
-        window_title='Правила',
-        html_message='<font color="black">Играйте с компьютером: соберите ряд из трех крестиков, чтобы победить!'
-    )
+    if message:
+        rules = pygame_gui.windows.UIMessageWindow(
+            rect=pygame.Rect((60, 60), (300, 175)),
+            manager=manager,
+            window_title='',
+            html_message=f'<font color="black">{message}</font>',
+        )
+    else:
+        rules = pygame_gui.windows.UIMessageWindow(
+            rect=pygame.Rect((60, 0), (400, 175)),
+            manager=manager,
+            window_title='Правила',
+            html_message='<font color="black">Играйте с компьютером: соберите ряд из трех крестиков, чтобы победить!'
+        )
     rules.dismiss_button.text = 'Закрыть'
     rules.dismiss_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
     rules.dismiss_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
@@ -326,13 +340,15 @@ def show_rules():
 
 def start():
 
-    global width, height, screen, manager, confirmation_mini_game_dialog
+    global width, height, screen, manager, confirmation_mini_game_dialog, status_win
 
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
     board = Board(3, 3)
     board.set_view(155, 155, 80)
     running = True
+    
+    status_win = False
 
     manager = pygame_gui.UIManager((width, height))
 
@@ -393,6 +409,8 @@ def start():
         manager.draw_ui(screen)
 
         pygame.display.flip()
+    
+    return status_win
 
 
 if __name__ == '__main__':
