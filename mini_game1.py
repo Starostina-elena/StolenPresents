@@ -36,7 +36,7 @@ def check_field(field):
         for i in field:
             if i.count(0) != 0:
                 is_not_winner = True
-                break
+                return ''
         if not (is_not_winner):
             winner = 'Ничья'
             return winner
@@ -79,12 +79,11 @@ class Board:
 
         global width, screen
 
-        font = pygame.font.Font(None, 80)
+        font = pygame.font.Font(None, 70)
         string_rendered = font.render(message, True, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
-        intro_rect.x, intro_rect.y = width // 2 - intro_rect.width // 2, 100
+        intro_rect.x, intro_rect.y = width // 2 - intro_rect.width // 2, 10
         screen.blit(string_rendered, intro_rect)
-        print('ok')
 
     # настройка внешнего вида
     def set_view(self, left, top, cell_size):
@@ -121,6 +120,7 @@ class Board:
                     sprite.rect.x = self.left + x * self.cell_size + 2
                     sprite.rect.y = self.top + y * self.cell_size + 2
                     all_sprites.draw(screen)
+        self.text(check_field(self.board))
 
     def get_click(self, mouse_pos):
         cell = self.get_cell(mouse_pos)
@@ -251,18 +251,93 @@ class Board:
             self.text(check_field(self.board))
 
 
-def start():
-    global width, height, screen
+def confirmation_exit_dialog():
 
-    size = width, height = 800, 600
+    global manager, confirmation_mini_game_dialog
+
+    confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
+        rect=pygame.Rect((200, 70), (300, 200)),
+        manager=manager,
+        window_title='Подтверждение',
+        action_long_desc=f'<font color="00FF00">Вы уверены, что хотите выйти? Вернуться в мини-игру будет невозможно</font>',
+        action_short_name='OK',
+        blocking=True
+    )
+    confirmation_mini_game_dialog.confirm_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    confirmation_mini_game_dialog.confirm_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.confirm_button.rebuild()
+    confirmation_mini_game_dialog.cancel_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    confirmation_mini_game_dialog.cancel_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.cancel_button.rebuild()
+    confirmation_mini_game_dialog.title_bar.colours['normal_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['hovered_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['active_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['normal_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.colours['hovered_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.colours['active_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.rebuild()
+    confirmation_mini_game_dialog.background_colour = pygame.color.Color((0, 200, 100))
+    confirmation_mini_game_dialog.confirmation_text.background_colour = pygame.color.Color((255, 255, 255))
+    confirmation_mini_game_dialog.confirmation_text.rebuild()
+    confirmation_mini_game_dialog.rebuild()
+
+
+def show_rules():
+
+    global manager
+
+    rules = pygame_gui.windows.UIMessageWindow(
+        rect=pygame.Rect((60, 0), (400, 175)),
+        manager=manager,
+        window_title='Правила',
+        html_message='<font color="black">Играйте с компьютером: соберите ряд из трех крестиков, чтобы победить!'
+    )
+    rules.dismiss_button.text = 'Закрыть'
+    rules.dismiss_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    rules.dismiss_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    rules.dismiss_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    rules.dismiss_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    rules.dismiss_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    rules.dismiss_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
+    rules.dismiss_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
+    rules.dismiss_button.rebuild()
+    rules.title_bar.colours['normal_bg'] = pygame.Color((0, 200, 100))
+    rules.title_bar.colours['hovered_bg'] = pygame.Color((0, 200, 100))
+    rules.title_bar.colours['active_bg'] = pygame.Color((0, 200, 100))
+    rules.title_bar.colours['normal_text'] = pygame.Color((0, 0, 0))
+    rules.title_bar.colours['hovered_text'] = pygame.Color((0, 0, 0))
+    rules.title_bar.colours['active_text'] = pygame.Color((0, 0, 0))
+    rules.title_bar.rebuild()
+    rules.background_colour = pygame.color.Color((0, 200, 100))
+    rules.text_block.background_colour = pygame.color.Color((255, 255, 255))
+    rules.text_block.rebuild()
+    rules.rebuild()
+
+
+def start():
+
+    global width, height, screen, manager, confirmation_mini_game_dialog
+
+    size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
     board = Board(3, 3)
+    board.set_view(155, 155, 80)
     running = True
 
     manager = pygame_gui.UIManager((width, height))
 
     exit_button = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((750, 0), (50, 50)),
+        relative_rect=pygame.Rect((500, 0), (50, 50)),
         text='X',
         manager=manager
     )
@@ -274,6 +349,20 @@ def start():
     exit_button.colours['normal_text'] = pygame.Color((255, 0, 0, 255))
     exit_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
     exit_button.rebuild()
+
+    help_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((0, 0), (50, 50)),
+        text='?',
+        manager=manager
+    )
+    help_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    help_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    help_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    help_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    help_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    help_button.colours['normal_text'] = pygame.Color((255, 0, 0, 255))
+    help_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
+    help_button.rebuild()
 
     while running:
         for event in pygame.event.get():
@@ -287,8 +376,15 @@ def start():
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == exit_button:
+                        confirmation_exit_dialog()
+                    elif event.ui_element == help_button:
+                        show_rules()
+                elif event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
+                    if event.ui_element == confirmation_mini_game_dialog:
                         running = False
             manager.process_events(event)
+
+        screen.fill((0, 0, 0))
 
         manager.update(60 / 1000)
 
@@ -297,3 +393,9 @@ def start():
         manager.draw_ui(screen)
 
         pygame.display.flip()
+
+
+if __name__ == '__main__':
+
+    pygame.init()
+    start()
