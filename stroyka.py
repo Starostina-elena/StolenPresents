@@ -32,7 +32,7 @@ class Mountain(pygame.sprite.Sprite):
         super().__init__(all_sprites)
         self.image = Mountain.image
         self.rect = self.image.get_rect()
-        # вычисляем маску для эффективного сравнения
+
         self.mask = pygame.mask.from_surface(self.image)
         # располагаем горы внизу
         self.rect.bottom = height
