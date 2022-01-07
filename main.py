@@ -8,6 +8,9 @@ from random import shuffle
 
 import tic_tac_toe_game
 import three_in_row
+import mini_game_2048
+import sapper_game
+# import stroyka
 
 
 FPS = 60
@@ -30,6 +33,41 @@ def game_three_in_row():
 
     if three_in_row.main():
         number_of_presents += 1
+
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+
+
+def game_2048():
+
+    global width, height, screen, size, number_of_presents
+
+    if mini_game_2048.main():
+        number_of_presents += 1
+
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+
+
+def saper():
+
+    global width, height, screen, size, number_of_presents
+
+    print('!!!')
+
+    if sapper_game.start():
+        number_of_presents += 1
+
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+
+
+def tower():
+
+    global width, height, screen, size, number_of_presents
+
+    # if stroyka.main():
+    #     number_of_presents += 1
 
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
@@ -368,7 +406,7 @@ if __name__ == '__main__':
                   '3 в ряд',
                   '2048',
                   'башня']
-    MINI_GAMES = ['крестики-нолики', '3 в ряд']
+    MINI_GAMES = ['крестики-нолики', '2048', '3 в ряд', 'сапёр', 'башня']
     shuffle(MINI_GAMES)
     current_game = None
 
@@ -465,6 +503,21 @@ if __name__ == '__main__':
                         game_three_in_row()
                         for i in portals:
                             if i.game == '3 в ряд':
+                                i.kill()
+                    elif current_game == '2048':
+                        game_2048()
+                        for i in portals:
+                            if i.game == '2048':
+                                i.kill()
+                    elif current_game == 'сапёр':
+                        saper()
+                        for i in portals:
+                            if i.game == 'сапёр':
+                                i.kill()
+                    elif current_game == 'башня':
+                        tower()
+                        for i in portals:
+                            if i.game == 'башня':
                                 i.kill()
 
             manager.process_events(event)
