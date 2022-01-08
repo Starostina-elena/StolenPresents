@@ -32,7 +32,7 @@ class Mountain(pygame.sprite.Sprite):
         super().__init__(all_sprites)
         self.image = Mountain.image
         self.rect = self.image.get_rect()
-
+        # вычисляем маску для эффективного сравнения
         self.mask = pygame.mask.from_surface(self.image)
         # располагаем горы внизу
         self.rect.bottom = height
@@ -53,17 +53,15 @@ class Landing(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = pos[0]
         self.rect.y = pos[1]
-        print(count, result, my, 1)
 
     def update(self):
         try:
             global y_pos, count, result, my
-            if event.type == pygame.MOUSEBUTTONDOWN and count != 1:
+            if result % 2 == 0 and count != 1:
                 my += [self.rect.x, self.rect.y]
                 count += 1
                 if count != 1:
                     y_pos -= 25
-            print(count, result, my, 2)
             if result % 2 != 0:
                 self.rect.x += 5
                 if self.rect.left > width:
@@ -80,22 +78,146 @@ class Landing(pygame.sprite.Sprite):
         except Exception as a:
             print(a)
 
+def show_rules(message=None):
+    global manager
 
-clock = pygame.time.Clock()
-running = True
-while running:
-    screen.fill((255, 255, 255))
-    t = clock.tick(20)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            result += 1
-            if result == 1:
-                Landing(event.pos)
-            else:
-                all_sprites.update()
-    all_sprites.draw(screen)
-    all_sprites.update()
-    pygame.display.flip()
-pygame.quit()
+    if message:
+        rules = pygame_gui.windows.UIMessageWindow(
+            rect=pygame.Rect((60, 60), (300, 175)),
+            manager=manager,
+            window_title='',
+            html_message=f'<font color="black">{message}</font>',
+        )
+    else:
+        rules = pygame_gui.windows.UIMessageWindow(
+            rect=pygame.Rect((60, 60), (400, 400)),
+            manager=manager,
+            window_title='Правила',
+            html_message='<font color="black">Перемещайте фигуры с помощью стрелок на клавиатуре. ' + \
+                         'Когда вы нажимаете на кнопку, все числа на поле сдвигаются в указанном направлении. ' + \
+                         'Когда одинаковые числа наезжают друг на друга, они "собираются" в одно удвоенное. ' + \
+                         'Каждый ход на поле в случайном месте появляется новое число. ' + \
+                         'Соберите число 256, чтобы победить! Создание на поле ситуации, когда движение невозможно, ' + \
+                         'приведет к проигрышу.</font>',
+        )
+    rules.dismiss_button.text = 'Закрыть'
+    rules.dismiss_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    rules.dismiss_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    rules.dismiss_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    rules.dismiss_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    rules.dismiss_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    rules.dismiss_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
+    rules.dismiss_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
+    rules.dismiss_button.rebuild()
+    rules.title_bar.colours['normal_bg'] = pygame.Color((0, 200, 100))
+    rules.title_bar.colours['hovered_bg'] = pygame.Color((0, 200, 100))
+    rules.title_bar.colours['active_bg'] = pygame.Color((0, 200, 100))
+    rules.title_bar.colours['normal_text'] = pygame.Color((0, 0, 0))
+    rules.title_bar.colours['hovered_text'] = pygame.Color((0, 0, 0))
+    rules.title_bar.colours['active_text'] = pygame.Color((0, 0, 0))
+    rules.title_bar.rebuild()
+    rules.background_colour = pygame.color.Color((0, 200, 100))
+    rules.text_block.background_colour = pygame.color.Color((255, 255, 255))
+    rules.text_block.rebuild()
+    rules.rebuild()
+
+
+def confirmation_exit_dialog():
+    global manager, confirmation_mini_game_dialog
+
+    confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
+        rect=pygame.Rect((200, 70), (300, 200)),
+        manager=manager,
+        window_title='Подтверждение',
+        action_long_desc=f'<font color="00FF00">Вы уверены, что хотите выйти? Вернуться в мини-игру будет невозможно</font>',
+        action_short_name='OK',
+        blocking=True
+    )
+    confirmation_mini_game_dialog.confirm_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    confirmation_mini_game_dialog.confirm_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.confirm_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.confirm_button.rebuild()
+    confirmation_mini_game_dialog.cancel_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    confirmation_mini_game_dialog.cancel_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.cancel_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.cancel_button.rebuild()
+    confirmation_mini_game_dialog.title_bar.colours['normal_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['hovered_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['active_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours['normal_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.colours['hovered_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.colours['active_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.rebuild()
+    confirmation_mini_game_dialog.background_colour = pygame.color.Color((0, 200, 100))
+    confirmation_mini_game_dialog.confirmation_text.background_colour = pygame.color.Color((255, 255, 255))
+    confirmation_mini_game_dialog.confirmation_text.rebuild()
+    confirmation_mini_game_dialog.rebuild()
+
+
+def main():
+    global width, height, screen, manager, confirmation_mini_game_dialog
+
+    width, height = 550, 550
+    screen = pygame.display.set_mode((width, height))
+    manager = pygame_gui.UIManager((width, height))
+
+    exit_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((500, 0), (50, 50)),
+        text='X',
+        manager=manager
+    )
+    exit_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    exit_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    exit_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    exit_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    exit_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    exit_button.colours['normal_text'] = pygame.Color((255, 0, 0, 255))
+    exit_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
+    exit_button.rebuild()
+
+    help_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((0, 0), (50, 50)),
+        text='?',
+        manager=manager
+    )
+    help_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
+    help_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    help_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
+    help_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
+    help_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
+    help_button.colours['normal_text'] = pygame.Color((255, 0, 0, 255))
+    help_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
+    help_button.rebuild()
+
+    clock = pygame.time.Clock()
+    running = True
+    global result
+    while running:
+        screen.fill((255, 255, 255))
+        t = clock.tick(20)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                result += 1
+                if result == 1:
+                    Landing(event.pos)
+                else:
+                    all_sprites.update()
+        all_sprites.draw(screen)
+        all_sprites.update()
+        pygame.display.flip()
+
+
+
+if __name__ == '__main__':
+    pygame.init()
+    main()
