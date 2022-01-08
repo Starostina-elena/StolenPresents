@@ -21,11 +21,23 @@ def load_image(name, colorkey=-1, transform=None):
     else:
         image = image.convert_alpha()
     if transform:
-        image = pygame.transform.scale(image, (70, 75))
+        image = pygame.transform.scale(image, (30, 30))
     else:
-        image = pygame.transform.scale(image, (250, 250))
+        image = pygame.transform.scale(image, (144, 144))
     return image
 
+def check_win(board):
+    is_win = 'OK'
+    for i in board:
+        if i.count('') > 0:
+            is_win = False
+        if 'boom' in i:
+            is_win = 'Finish'
+            break
+    if is_win == 'OK':
+        return 'Вы победили'
+    elif is_win == 'Finish':
+        return 'Вы проиграли'
 
 class Board:
     # создание поля
@@ -36,29 +48,36 @@ class Board:
         self.show_board = deepcopy(self.board)
 
         # значения по умолчанию
-        self.left = 250
-        self.top = 250
-        self.cell_size = 80
+        self.left = 150
+        self.top = 50
+        self.cell_size = 45
         self.game_status = True
         self.colors = [(0, 0, 0), (255, 0, 0), (0, 0, 255)]
-        self.n_bomb = 2
+        self.n_bomb = 5
         self.generation_bomb()
         self.place_number()
-        print(self.board)
 
-    def text(self, message):
+    def text_number(self, message, x, y):
 
         global width, screen
 
-        font = pygame.font.Font(None, 70)
+        font = pygame.font.Font(None, 40)
         string_rendered = font.render(message, True, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
-        intro_rect.x, intro_rect.y = width // 2 - intro_rect.width // 2, 10
+        intro_rect.x, intro_rect.y = x, y
+        screen.blit(string_rendered, intro_rect)
+
+    def text(self, message):
+        global width, screen
+        font = pygame.font.Font(None, 40)
+        string_rendered = font.render(message, True, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        intro_rect.x, intro_rect.y = 200, 350
         screen.blit(string_rendered, intro_rect)
 
     def generation_bomb(self):
         for i in range(self.n_bomb):
-            self.board[random.randint(0, 3 - 1)][random.randint(0, 3 - 1)] = 'b'
+            self.board[random.randint(0, 6 - 1)][random.randint(0, 6 - 1)] = 'b'
     # настройка внешнего вида
     def set_view(self, left, top, cell_size):
         self.left = left
@@ -71,49 +90,82 @@ class Board:
         sprite.image = load_image("поле.png", transform=False)
         sprite.rect = sprite.image.get_rect()
         all_sprites.add(sprite)
+        sprite.rect.x = self.left + 130
+        sprite.rect.y = self.top - 5
+        sprite = pygame.sprite.Sprite()
+        sprite.image = load_image("поле.png", transform=False)
+        sprite.rect = sprite.image.get_rect()
+        all_sprites.add(sprite)
         sprite.rect.x = self.left - 5
-        sprite.rect.y = self.top - 2
+        sprite.rect.y = self.top - 5
+        sprite = pygame.sprite.Sprite()
+        sprite.image = load_image("поле.png", transform=False)
+        sprite.rect = sprite.image.get_rect()
+        all_sprites.add(sprite)
+        sprite.rect.x = self.left - 5
+        sprite.rect.y = self.top + 130
+        sprite = pygame.sprite.Sprite()
+        sprite.image = load_image("поле.png", transform=False)
+        sprite.rect = sprite.image.get_rect()
+        all_sprites.add(sprite)
+        sprite.rect.x = self.left + 130
+        sprite.rect.y = self.top + 130
         all_sprites.draw(screen)
         for x in range(self.width):
             for y in range(self.height):
+                pass
                 if self.show_board[y][x] == '':
                     pygame.draw.rect(screen, (255, 255, 255),
-                                     (self.left + x * self.cell_size + 7,
-                                      self.top + y * self.cell_size + 7,
-                                      self.cell_size - 7, self.cell_size - 7), 0)
-                if self.show_board[y][x] == 'e':
-                    pygame.draw.rect(screen, (0, 0, 0),
-                                     (self.left + x * self.cell_size + 7,
-                                      self.top + y * self.cell_size + 7,
-                                      self.cell_size - 7, self.cell_size - 7), 0)
-                #
+                                     (self.left + x * self.cell_size + 2,
+                                      self.top + y * self.cell_size + 2,
+                                      self.cell_size - 2, self.cell_size - 2), 0)
+                if self.show_board[y][x] == 'boom':
+                    all_sprites = pygame.sprite.Group()
+                    sprite = pygame.sprite.Sprite()
+                    sprite.image = load_image("boom.png", transform=True)
+                    sprite.rect = sprite.image.get_rect()
+                    all_sprites.add(sprite)
+                    sprite.rect.x = self.left + x * self.cell_size + 9
+                    sprite.rect.y = self.top + y * self.cell_size + 9
+                    all_sprites.draw(screen)
+                if self.show_board[y][x] == 'F':
+                    all_sprites = pygame.sprite.Group()
+                    sprite = pygame.sprite.Sprite()
+                    sprite.image = load_image("flag.png", transform=True)
+                    sprite.rect = sprite.image.get_rect()
+                    all_sprites.add(sprite)
+                    sprite.rect.x = self.left + x * self.cell_size + 10
+                    sprite.rect.y = self.top + y * self.cell_size + 10
+                    all_sprites.draw(screen)
                 if self.show_board[y][x].isdigit() and \
-                    self.show_board[y][x].isdigit() != '0':
-                    self.text(self.show_board[y][x],
-                              self.left + x * self.cell_size + 30,
-                              self.top + y * self.cell_size + 25)
+                    self.show_board[y][x] != '0':
+                    self.text_number(self.show_board[y][x],
+                              self.left + x * self.cell_size + 15,
+                              self.top + y * self.cell_size + 10)
+        self.text(check_win(self.show_board))
 
-    def get_click(self, mouse_pos):
+    def get_click(self, mouse_pos, turn):
         cell = self.get_cell(mouse_pos)
-        self.on_click(cell)
+        if turn == 'open':
+            self.on_click(cell)
+        elif turn == 'flag':
+            self.do_flag(cell)
+        if check_win(self.show_board):
+            self.game_status = False
+            self.text(check_win(self.show_board))
+
 
     def get_cell(self, mouse_pos):
         cell_x = (mouse_pos[0] - self.left) // self.cell_size
-        cell_y = (mouse_pos[1] - self.left) // self.cell_size
-        if cell_x not in range(0, 3) or cell_y not in range(0, 3):
+        cell_y = (mouse_pos[1] - self.top) // self.cell_size
+        if cell_x not in range(0, 6) or cell_y not in range(0, 6):
             return None
         return (cell_y, cell_x)
 
     def on_click(self, cell_coords):
-        print(cell_coords[0], cell_coords[1])
         if self.game_status:
-
-            # if self.show_board[cell_coords[0]][cell_coords[1]] == '':
-            #     self.show_board[cell_coords[0]][cell_coords[1]] = 'e'
-            if 0 <= cell_coords[0] < 3 and 0 <= cell_coords[1] < 3:
-                print(self.show_board)
+            if 0 <= cell_coords[0] < 6 and 0 <= cell_coords[1] < 6:
                 if self.board[cell_coords[0]][cell_coords[1]] == '':
-                    print('зашёл')
                     self.show_board[cell_coords[0]][cell_coords[1]] = '   '
 
                     self.board[cell_coords[0]][cell_coords[1]] = '[*]'
@@ -123,18 +175,16 @@ class Board:
                     self.on_click((cell_coords[0] + 1, cell_coords[1]))
                 else:
                     if self.board[cell_coords[0]][cell_coords[1]].isdigit():
-                        self.show_board[cell_coords[0]][cell_coords[1]] = self.board[cell_coords[0]][cell_coords[1]]
-            # print(self.board)
-            # print(self.show_board)
-    def text(self, message, x, y):
-
-        global width, screen
-
-        font = pygame.font.Font(None, 40)
-        string_rendered = font.render(message, True, pygame.Color('white'))
-        intro_rect = string_rendered.get_rect()
-        intro_rect.x, intro_rect.y = x, y
-        screen.blit(string_rendered, intro_rect)
+                        self.show_board[cell_coords[0]][cell_coords[1]] = \
+                            self.board[cell_coords[0]][cell_coords[1]]
+                    elif self.board[cell_coords[0]][cell_coords[1]] == 'b':
+                        self.show_board[cell_coords[0]][cell_coords[1]] = 'boom'
+                        print(self.show_board)
+                        self.game_status = False
+    def do_flag(self, cell_coords):
+        if self.game_status:
+            if 0 <= cell_coords[0] < 6 and 0 <= cell_coords[1] < 6:
+                    self.show_board[cell_coords[0]][cell_coords[1]] = 'F'
 
 
     def place_number(self):
@@ -142,28 +192,28 @@ class Board:
             for j in range(len(self.board[i])):
                 if self.board[i][j] != 'b':
                     count = 0
-                    if 0 <= i - 1 < 3 and 0 <= j - 1 < 3 and \
+                    if 0 <= i - 1 < 6 and 0 <= j - 1 < 6 and \
                         self.board[i - 1][j - 1] == 'b':
                         count += 1
-                    if 0 <= i - 1 < 3 and 0 <= j < 3 and \
+                    if 0 <= i - 1 < 6 and 0 <= j < 6 and \
                         self.board[i - 1][j] == 'b':
                         count += 1
-                    if 0 <= i - 1 < 3 and 0 <= j + 1 < 3 and \
+                    if 0 <= i - 1 < 6 and 0 <= j + 1 < 6 and \
                         self.board[i - 1][j + 1] == 'b':
                         count += 1
-                    if 0 <= i < 3 and 0 <= j - 1 < 3 and \
+                    if 0 <= i < 6 and 0 <= j - 1 < 6 and \
                         self.board[i][j - 1] == 'b':
                         count += 1
-                    if 0 <= i < 3 and 0 <= j + 1 < 3 and \
+                    if 0 <= i < 6 and 0 <= j + 1 < 6 and \
                         self.board[i][j + 1] == 'b':
                         count += 1
-                    if 0 <= i + 1 < 3 and 0 <= j - 1 < 3 and \
+                    if 0 <= i + 1 < 6 and 0 <= j - 1 < 6 and \
                         self.board[i + 1][j - 1] == 'b':
                         count += 1
-                    if 0 <= i + 1 < 3 and 0 <= j < 3 and \
+                    if 0 <= i + 1 < 6 and 0 <= j < 6 and \
                         self.board[i + 1][j] == 'b':
                         count += 1
-                    if 0 <= i + 1 < 3 and 0 <= j + 1 < 3 and \
+                    if 0 <= i + 1 < 6 and 0 <= j + 1 < 6 and \
                         self.board[i + 1][j + 1] == 'b':
                         count += 1
                     if count != 0:
@@ -216,10 +266,10 @@ def show_rules():
     global manager
 
     rules = pygame_gui.windows.UIMessageWindow(
-        rect=pygame.Rect((60, 0), (400, 175)),
+        rect=pygame.Rect((60, 0), (400, 200)),
         manager=manager,
         window_title='Правила',
-        html_message='<font color="black">Играйте с компьютером: соберите ряд из трех крестиков, чтобы победить!'
+        html_message='<font color="black">Ваша цель открыть всё поле, не наступив на бомбу. Левая кнопка мыши открывает клетку, правая - ставит флаг.'
     )
     rules.dismiss_button.text = 'Закрыть'
     rules.dismiss_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
@@ -249,8 +299,8 @@ def start():
 
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
-    board = Board(3, 3)
-    board.set_view(155, 155, 80)
+    board = Board(6, 6)
+    board.set_view(150, 50, 45)
     running = True
 
     manager = pygame_gui.UIManager((width, height))
@@ -289,7 +339,10 @@ def start():
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 try:
-                    board.get_click(event.pos)
+                    if event.button == 1:
+                        board.get_click(event.pos, 'open')
+                    elif event.button == 3:
+                        board.get_click(event.pos, 'flag')
                 except Exception:
                     pass
             if event.type == pygame.USEREVENT:
