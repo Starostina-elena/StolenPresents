@@ -37,13 +37,17 @@ class Mountain(pygame.sprite.Sprite):
         # располагаем горы внизу
         self.rect.bottom = height
 
+
 mountain = Mountain()
 y_pos = 213
 my = []
 count = 0
 
+
 class Landing(pygame.sprite.Sprite):
+
     image = load_image("kvaddd.png")
+
     def __init__(self, pos):
         global my, y_pos, count, result
         super().__init__(all_sprites)
@@ -55,6 +59,9 @@ class Landing(pygame.sprite.Sprite):
         self.rect.y = pos[1]
 
     def update(self):
+
+        global current_block_id
+
         try:
             global y_pos, count, result, my
             if result % 2 == 0 and count != 1:
@@ -69,14 +76,15 @@ class Landing(pygame.sprite.Sprite):
             else:
                 if not pygame.sprite.collide_mask(self, mountain) and self.rect.y < y_pos:
                     self.rect = self.rect.move(0, 1)
-                else:
-                    Landing([122, 20])
+                elif id(self) == current_block_id:
+                    current_block_id = id(Landing([122, 20]))
                 if count != 0:
                     if abs(int(my[-2]) - int(my[0])) > 12:
                         print("Game over")
                         exit()
         except Exception as a:
             print(a)
+
 
 def show_rules(message=None):
     global manager
@@ -163,11 +171,13 @@ def confirmation_exit_dialog():
 
 
 def main():
-    global width, height, screen, manager, confirmation_mini_game_dialog, result
+    global width, height, screen, manager, confirmation_mini_game_dialog, result, current_block_id
 
     width, height = 550, 550
     screen = pygame.display.set_mode((width, height))
     manager = pygame_gui.UIManager((width, height))
+
+    current_block_id = None
 
     exit_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((500, 0), (50, 50)),
@@ -223,14 +233,14 @@ def main():
                 if not(event.pos[0] < 50 and event.pos[1] < 50 or event.pos[0] > 500 and event.pos[1] < 50) and not status_game_blocked:
                     result += 1
                     if result == 1:
-                        Landing(event.pos)
-                    else:
-                        all_sprites.update()
+                        current_block_id = id(Landing(event.pos))
+                    # else:
+                    #     all_sprites.update()
             manager.process_events(event)
         manager.update(60 / 1000)
         if not status_game_blocked:
             all_sprites.update()
-        all_sprites.draw(screen)
+            all_sprites.draw(screen)
         manager.draw_ui(screen)
         pygame.display.flip()
 
