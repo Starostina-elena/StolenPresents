@@ -26,7 +26,9 @@ def load_image(name, colorkey=-1, transform=None):
         image = pygame.transform.scale(image, (144, 144))
     return image
 
+
 def check_win(board):
+    global status_win
     is_win = 'OK'
     for i in board:
         if i.count('') > 0:
@@ -35,6 +37,9 @@ def check_win(board):
             is_win = 'Finish'
             break
     if is_win == 'OK':
+        if not status_win:
+            show_rules('Благодаря вам дед Мороз получил 1 подарок!')
+            status_win = True
         return 'Вы победили'
     elif is_win == 'Finish':
         return 'Вы проиграли'
@@ -261,16 +266,24 @@ def confirmation_exit_dialog():
     confirmation_mini_game_dialog.rebuild()
 
 
-def show_rules():
+def show_rules(message=None):
 
     global manager
 
-    rules = pygame_gui.windows.UIMessageWindow(
-        rect=pygame.Rect((60, 0), (400, 200)),
-        manager=manager,
-        window_title='Правила',
-        html_message='<font color="black">Ваша цель открыть всё поле, не наступив на бомбу. Левая кнопка мыши открывает клетку, правая - ставит флаг.'
-    )
+    if message:
+        rules = pygame_gui.windows.UIMessageWindow(
+            rect=pygame.Rect((60, 0), (400, 175)),
+            manager=manager,
+            window_title='Правила',
+            html_message=f'<font color="black">{message}</font>'
+        )
+    else:
+        rules = pygame_gui.windows.UIMessageWindow(
+            rect=pygame.Rect((60, 0), (400, 200)),
+            manager=manager,
+            window_title='Правила',
+            html_message='<font color="black">Ваша цель открыть всё поле, не наступив на бомбу. Левая кнопка мыши открывает клетку, правая - ставит флаг.'
+        )
     rules.dismiss_button.text = 'Закрыть'
     rules.dismiss_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
     rules.dismiss_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
@@ -295,13 +308,15 @@ def show_rules():
 
 def start():
 
-    global width, height, screen, manager, confirmation_mini_game_dialog
+    global width, height, screen, manager, confirmation_mini_game_dialog, status_win
 
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
     board = Board(6, 6)
     board.set_view(150, 50, 45)
     running = True
+
+    status_win = False
 
     manager = pygame_gui.UIManager((width, height))
 
@@ -365,6 +380,9 @@ def start():
         manager.draw_ui(screen)
 
         pygame.display.flip()
+
+    return status_win
+
 
 if __name__ == '__main__':
 
