@@ -163,7 +163,7 @@ def confirmation_exit_dialog():
 
 
 def main():
-    global width, height, screen, manager, confirmation_mini_game_dialog
+    global width, height, screen, manager, confirmation_mini_game_dialog, result
 
     width, height = 550, 550
     screen = pygame.display.set_mode((width, height))
@@ -199,23 +199,40 @@ def main():
 
     clock = pygame.time.Clock()
     running = True
-    global result
+    status_game_blocked = False
     while running:
         screen.fill((255, 255, 255))
         t = clock.tick(20)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                result += 1
-                if result == 1:
-                    Landing(event.pos)
-                else:
-                    all_sprites.update()
+            if event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == exit_button:
+                        confirmation_exit_dialog()
+                        status_game_blocked = True
+                    elif event.ui_element == help_button:
+                        show_rules()
+                        status_game_blocked = True
+                elif event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
+                    if event.ui_element == confirmation_mini_game_dialog:
+                        running = False
+                elif event.user_type == pygame_gui.UI_WINDOW_CLOSE:
+                    status_game_blocked = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if not(event.pos[0] < 50 and event.pos[1] < 50 or event.pos[0] > 500 and event.pos[1] < 50) and not status_game_blocked:
+                    result += 1
+                    if result == 1:
+                        Landing(event.pos)
+                    else:
+                        all_sprites.update()
+            manager.process_events(event)
+        manager.update(60 / 1000)
+        if not status_game_blocked:
+            all_sprites.update()
         all_sprites.draw(screen)
-        all_sprites.update()
+        manager.draw_ui(screen)
         pygame.display.flip()
-
 
 
 if __name__ == '__main__':
