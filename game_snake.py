@@ -97,7 +97,7 @@ def main():
             screen.fill('white')
             pygame.draw.rect(screen, 'green', [x_food, y_food, 10, 10])
             snake_coords.append([x_snake, y_snake])
-            if len(snake_coords) - 1:
+            if len(snake_coords) - 1 > count:
                 del snake_coords[0]
             our_snake(snake_block, snake_coords)
             Your_score(count)
