@@ -42,6 +42,7 @@ mountain = Mountain()
 y_pos = 213
 my = []
 count = 0
+y_p = 0
 
 
 class Landing(pygame.sprite.Sprite):
@@ -49,7 +50,7 @@ class Landing(pygame.sprite.Sprite):
     image = load_image("kvaddd.png")
 
     def __init__(self, pos):
-        global my, y_pos, count, result
+        global my, y_pos, count, result, y_p
         super().__init__(all_sprites)
         self.image = Landing.image
         self.rect = self.image.get_rect()
@@ -57,29 +58,35 @@ class Landing(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = pos[0]
         self.rect.y = pos[1]
+        if result % 2 == 0 and count != 1:
+            my += [self.rect.x, self.rect.y]
+            count += 1
+            if count != 1:
+                y_pos -= 28
+        print(my)
 
     def update(self):
 
         global current_block_id
 
         try:
-            global y_pos, count, result, my
-            if result % 2 == 0 and count != 1:
-                my += [self.rect.x, self.rect.y]
-                count += 1
-                if count != 1:
-                    y_pos -= 25
-            if result % 2 != 0:
+            global y_pos, count, result, my, y_p
+            count += 1
+            if result % 2 != 0 and id(self) == current_block_id:
                 self.rect.x += 5
                 if self.rect.left > width:
                     self.rect.right = 0
             else:
                 if not pygame.sprite.collide_mask(self, mountain) and self.rect.y < y_pos:
                     self.rect = self.rect.move(0, 1)
-                elif id(self) == current_block_id:
-                    current_block_id = id(Landing([122, 20]))
+                if self.rect.y == y_pos:
+                    current_block_id = id(Landing([122, 10]))
+                    y_p += 1
+                    result += 1
+                    count += 1
                 if count != 0:
                     if abs(int(my[-2]) - int(my[0])) > 12:
+                        print(my)
                         print("Game over")
                         exit()
         except Exception as a:
@@ -102,7 +109,7 @@ def show_rules(message=None):
             manager=manager,
             window_title='Правила',
             html_message='<font color="black">Постройте башню, чтобы она не упала. ' + \
-                         'Чтобы начать игру, вам нужно нажать мышкой на экран. ' + \
+                         'Чтобы начать игру, вам нужно нажать мышкой на экран(около крестика например). ' + \
                          'По экрану начнет передвигаться блок, ваша задача - кликнуть на него в такой момент, ' + \
                          'чтобы блок упал на землю с определенными координатами и получилась башенка из кубиков. ' + \
                          'Если вы будете класть кубики неровно - это приведет к проигрышу. ' + \
@@ -171,7 +178,7 @@ def confirmation_exit_dialog():
 
 
 def main():
-    global width, height, screen, manager, confirmation_mini_game_dialog, result, current_block_id
+    global width, height, screen, manager, confirmation_mini_game_dialog, result, current_block_id, y_p
 
     width, height = 550, 550
     screen = pygame.display.set_mode((width, height))
@@ -234,6 +241,7 @@ def main():
                     result += 1
                     if result == 1:
                         current_block_id = id(Landing(event.pos))
+                        y_p += 1
                     # else:
                     #     all_sprites.update()
             manager.process_events(event)
