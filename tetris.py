@@ -106,15 +106,15 @@ class Board:
         self.check_field_after_move()
     
     def move(self, direction):
-        # TODO: перемещение влево-вправо
-        # Сначала указывается игрек, потом икс
 
         moved = True
 
         for i in sorted(self.current_block, key=lambda el: -el[0]):
             try:
                 if self.board[i[0] + direction[0]][i[1] + direction[1]] is not None and \
-                        (i[0] + direction[0], i[1] + direction[1]) not in self.current_block:
+                        (i[0] + direction[0], i[1] + direction[1]) not in self.current_block or \
+                        i[0] + direction[0] < 0 or i[0] + direction[0] >= self.height or \
+                        i[1] + direction[1] < 0 or i[1] + direction[1] >= self.height:
                     moved = False
             except Exception:
                 moved = False
@@ -144,7 +144,6 @@ class Board:
                 line.append(block[j][i])
             new_block.append(line)
 
-        # current_block_copy = deepcopy(self.current_block)
         board_copy = deepcopy(self.board)
 
         for i in self.current_block:
@@ -171,6 +170,14 @@ class Board:
                         self.current_block.append((i + y, j + x))
 
     def check_field_after_move(self):
+
+        for i in range(len(self.board)):
+            if self.board[i].count(None) == 0:
+                self.board[i] = [None for _ in range(self.width)]
+                self.rows_left -= 1
+                for move_i in range(i, 0, -1):
+                    for j in range(self.width):
+                        self.board[move_i][j], self.board[move_i - 1][j] = self.board[move_i - 1][j], None
 
         if not self.check_field_game_possible():
             screen.fill((0, 0, 0))
