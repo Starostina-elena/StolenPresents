@@ -2,6 +2,7 @@ import pygame
 import pygame_gui
 
 from random import randint, choice
+from copy import deepcopy
 
 
 class Board:
@@ -107,11 +108,67 @@ class Board:
     def move(self, direction):
         # TODO: перемещение влево-вправо
         # Сначала указывается игрек, потом икс
-        pass
+
+        moved = True
+
+        for i in sorted(self.current_block, key=lambda el: -el[0]):
+            try:
+                if self.board[i[0] + direction[0]][i[1] + direction[1]] is not None and \
+                        (i[0] + direction[0], i[1] + direction[1]) not in self.current_block:
+                    moved = False
+            except Exception:
+                moved = False
+
+        if moved:
+            for i in self.current_block:
+                block_color = self.board[i[0]][i[1]]
+                self.board[i[0]][i[1]] = None
+            for i in range(len(self.current_block)):
+                self.current_block[i] = (self.current_block[i][0] + direction[0], self.current_block[i][1] + direction[1])
+            for i in self.current_block:
+                self.board[i[0]][i[1]] = block_color
+
+        self.check_field_after_move()
     
     def spin(self):
-        # TODO: вращение
-        pass
+
+        x, y = min(self.current_block, key=lambda el: el[1])[1], min(self.current_block, key=lambda el: el[0])[0]
+        block_coords = [(i[0] - y, i[1] - x) for i in self.current_block]
+        block_width, block_height = max(block_coords, key=lambda el: el[1])[1] + 1, max(block_coords, key=lambda el: el[0])[0] + 1
+        block = [[1 if (j, i) in block_coords else 0 for i in range(block_width)] for j in range(block_height)]
+
+        new_block = []
+        for i in range(len(block[0])):
+            line = []
+            for j in range(len(block)):
+                line.append(block[j][i])
+            new_block.append(line)
+
+        # current_block_copy = deepcopy(self.current_block)
+        board_copy = deepcopy(self.board)
+
+        for i in self.current_block:
+            board_copy[i[0]][i[1]] = None
+
+        can_place = True
+        for i in range(len(new_block)):
+            for j in range(len(new_block[0])):
+                try:
+                    if board_copy[i + y][j + x] is not None and new_block[i][j]:
+                        can_place = False
+                except Exception:
+                    can_place = False
+
+        if can_place:
+            for i in self.current_block:
+                block_color = self.board[i[0]][i[1]]
+                self.board[i[0]][i[1]] = None
+            self.current_block = []
+            for i in range(len(new_block)):
+                for j in range(len(new_block[0])):
+                    if new_block[i][j]:
+                        self.board[i + y][j + x] = block_color
+                        self.current_block.append((i + y, j + x))
 
     def check_field_after_move(self):
 
@@ -277,7 +334,7 @@ def main():
     help_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
     help_button.rebuild()
 
-    fps = 20
+    fps = 6
     clock = pygame.time.Clock()
 
     while running:
