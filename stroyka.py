@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import sys
 import os
@@ -12,7 +14,6 @@ all_sprites = pygame.sprite.Group()
 result = 0
 
 
-
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     # если файл не существует, то выходим
@@ -24,8 +25,6 @@ def load_image(name, colorkey=None):
 
 
 class Mountain(pygame.sprite.Sprite):
-
-
     image = load_image("moun.png")
 
     def __init__(self):
@@ -43,14 +42,41 @@ y_pos = 213
 my = []
 count = 0
 y_p = 0
+xx = 0
+yy = 0
+st = 0
+counter = 0
+a = []
+font_style = pygame.font.SysFont("arial", 25)
+score_font = pygame.font.SysFont("arial", 35)
+flag_of_game = True
+
+
+def message(msg, color):
+    mess = font_style.render(msg, True, color)
+    screen.blit(mess, [200, 225])
+
+def Game():
+    global game, counter
+    if counter >= 8:
+        screen.fill('white')
+        message("You Win!", "red")
+        pygame.display.update()
+        time.sleep(3)
+        exit()
+    else:
+        screen.fill('white')
+        message("You Lost!", "red")
+        pygame.display.update()
+        time.sleep(3)
+        exit()
 
 
 class Landing(pygame.sprite.Sprite):
-
     image = load_image("kvaddd.png")
 
     def __init__(self, pos):
-        global my, y_pos, count, result, y_p
+        global my, y_pos, count, result, y_p, st, a, counter
         super().__init__(all_sprites)
         self.image = Landing.image
         self.rect = self.image.get_rect()
@@ -58,19 +84,23 @@ class Landing(pygame.sprite.Sprite):
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = pos[0]
         self.rect.y = pos[1]
+        counter += 1
+        st += 1
+        if st != 1:
+            xx = self.rect.x
+            yy = self.rect.y
         if result % 2 == 0 and count != 1:
-            my += [self.rect.x, self.rect.y]
+            a += [self.rect.x, self.rect.y]
             count += 1
             if count != 1:
                 y_pos -= 28
-        print(my)
 
     def update(self):
 
         global current_block_id
 
         try:
-            global y_pos, count, result, my, y_p
+            global y_pos, count, result, my, y_p, flag_of_adding, flag_of_game
             count += 1
             if result % 2 != 0 and id(self) == current_block_id:
                 self.rect.x += 5
@@ -80,15 +110,23 @@ class Landing(pygame.sprite.Sprite):
                 if not pygame.sprite.collide_mask(self, mountain) and self.rect.y < y_pos:
                     self.rect = self.rect.move(0, 1)
                 if self.rect.y == y_pos:
+                    my += [self.rect.x, self.rect.y]
                     current_block_id = id(Landing([122, 10]))
                     y_p += 1
                     result += 1
                     count += 1
-                if count != 0:
-                    if abs(int(my[-2]) - int(my[0])) > 12:
-                        print(my)
+                if counter != 1 and counter != 2:
+                    if abs(int(my[-2]) - int(my[0])) >= 18 or abs(int(my[-2]) - int(my[-4])) >= 18:
                         print("Game over")
-                        exit()
+                        print(counter)
+                        Game()
+                if counter == 2:
+                    if abs(int(my[-2]) - int(my[0])):
+                        print("Game over")
+                        print(counter)
+                        Game()
+                if counter == 9:
+                    Game()
         except Exception as a:
             print(a)
 
@@ -178,7 +216,7 @@ def confirmation_exit_dialog():
 
 
 def main():
-    global width, height, screen, manager, confirmation_mini_game_dialog, result, current_block_id, y_p
+    global width, height, screen, manager, confirmation_mini_game_dialog, result, current_block_id, y_p, xx, yy, my
 
     width, height = 550, 550
     screen = pygame.display.set_mode((width, height))
@@ -237,13 +275,12 @@ def main():
                 elif event.user_type == pygame_gui.UI_WINDOW_CLOSE:
                     status_game_blocked = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if not(event.pos[0] < 50 and event.pos[1] < 50 or event.pos[0] > 500 and event.pos[1] < 50) and not status_game_blocked:
+                if not (event.pos[0] < 50 and event.pos[1] < 50 or event.pos[0] > 500 and event.pos[
+                    1] < 50) and not status_game_blocked:
                     result += 1
                     if result == 1:
-                        current_block_id = id(Landing(event.pos))
+                        current_block_id = id(Landing([122, 10]))
                         y_p += 1
-                    # else:
-                    #     all_sprites.update()
             manager.process_events(event)
         manager.update(60 / 1000)
         if not status_game_blocked:
