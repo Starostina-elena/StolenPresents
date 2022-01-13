@@ -38,7 +38,7 @@ class Mountain(pygame.sprite.Sprite):
 
 
 mountain = Mountain()
-y_pos = 213
+y_pos = 215
 my = []
 count = 0
 y_p = 0
@@ -73,7 +73,7 @@ def Game():
 
 
 class Landing(pygame.sprite.Sprite):
-    image = load_image("kvaddd.png")
+    image = load_image("kvadrat.png")
 
     def __init__(self, pos):
         global my, y_pos, count, result, y_p, st, a, counter
@@ -93,7 +93,7 @@ class Landing(pygame.sprite.Sprite):
             a += [self.rect.x, self.rect.y]
             count += 1
             if count != 1:
-                y_pos -= 28
+                y_pos -= 25
 
     def update(self):
 
