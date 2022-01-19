@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+import sys
 
 from random import randint, choice
 
@@ -304,7 +305,7 @@ def main():
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.key.key_code('left'):
                     board.move((-1, 0))

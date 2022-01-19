@@ -218,7 +218,7 @@ def main():
                             'boom!'
                             game = False
                     if event.type == pygame.QUIT:
-                        break
+                        sys.exit()
                 else:
                     screen.blit(font.render(text, True, (0, 0, 0)), (80, 0))
                     pygame.display.flip()

@@ -383,7 +383,7 @@ def start():
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 try:
                     board.get_click(event.pos)
@@ -411,12 +411,6 @@ def start():
         pygame.display.flip()
     
     return status_win
-
-
-if __name__ == '__main__':
-
-    pygame.init()
-    start()
 
 
 if __name__ == '__main__':

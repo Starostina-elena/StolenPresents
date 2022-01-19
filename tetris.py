@@ -4,6 +4,8 @@ import pygame_gui
 from random import randint, choice
 from copy import deepcopy
 
+import sys
+
 
 class Board:
 
@@ -347,7 +349,7 @@ def main():
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                sys.exit()
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == exit_button:
