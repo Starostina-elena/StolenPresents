@@ -110,7 +110,6 @@ def start_screen():
     font = pygame.font.Font(None, 30)
     text_coord = 50
     for line in intro_text:
-        print(line)
         string_rendered = font.render(line, 1, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
@@ -119,13 +118,27 @@ def start_screen():
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
 
+    manager2 = pygame_gui.UIManager((width, height))
+
+    player_name = pygame_gui.elements.UITextEntryLine(
+        relative_rect=pygame.Rect((350, 100), (100, 25)), manager=manager2
+    )
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
-                return
+            elif event.type == pygame.USEREVENT:
+                if event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                    print(event.text)
+                    player_name.kill()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == 32:  # 32 - код пробела
+                    return
+            manager2.process_events(event)
+
+        manager2.update(60/1000)
+        manager2.draw_ui(screen)
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -470,6 +483,8 @@ if __name__ == '__main__':
 
     clock = pygame.time.Clock()
 
+    manager = pygame_gui.UIManager((width, height))
+
     start_screen()
 
     player, level_x, level_y, level_map = \
@@ -477,8 +492,6 @@ if __name__ == '__main__':
 
     size = width, height = 11 * tile_width, 11 * tile_height
     screen = pygame.display.set_mode(size)
-
-    manager = pygame_gui.UIManager((width, height))
 
     camera = Camera()
 
