@@ -42,7 +42,7 @@ class Board:
 
         self.show_message('Нажмите пробел, чтобы начать', 40)
 
-        self.rows_left = 15
+        self.rows_left = 5
 
         self.win = False
 
@@ -341,7 +341,7 @@ def main():
     help_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
     help_button.rebuild()
 
-    fps = 6
+    fps = 4
     clock = pygame.time.Clock()
 
     while running:
