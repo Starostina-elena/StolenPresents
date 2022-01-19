@@ -14,12 +14,10 @@ import stroyka
 import game_snake
 import tetris
 
-
 FPS = 60
 
 
 def tic_tac_toe():
-
     global width, height, screen, size, number_of_presents
 
     if tic_tac_toe_game.start():
@@ -30,7 +28,6 @@ def tic_tac_toe():
 
 
 def game_three_in_row():
-
     global width, height, screen, size, number_of_presents
 
     if three_in_row.main():
@@ -41,7 +38,6 @@ def game_three_in_row():
 
 
 def game_2048():
-
     global width, height, screen, size, number_of_presents
 
     if mini_game_2048.main():
@@ -52,7 +48,6 @@ def game_2048():
 
 
 def saper():
-
     global width, height, screen, size, number_of_presents
 
     if sapper_game.start():
@@ -63,7 +58,6 @@ def saper():
 
 
 def tower():
-
     global width, height, screen, size, number_of_presents
 
     if stroyka.main():
@@ -74,7 +68,6 @@ def tower():
 
 
 def snake():
-
     global width, height, screen, size, number_of_presents
 
     if game_snake.main():
@@ -85,7 +78,6 @@ def snake():
 
 
 def mini_game_tetris():
-
     global width, height, screen, size, number_of_presents
 
     if tetris.main():
@@ -124,7 +116,7 @@ def start_screen():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.KEYDOWN or \
-                    event.type == pygame.MOUSEBUTTONDOWN:
+                event.type == pygame.MOUSEBUTTONDOWN:
                 return
         pygame.display.flip()
         clock.tick(FPS)
@@ -163,12 +155,12 @@ def load_image(name, colorkey=0, transform=None):
 
 
 def prepare_movement():
-
     global player_stands_on_portal, confirmation_mini_game_dialog
 
     if directions['right']:
         animation()
-        if not pygame.sprite.spritecollideany(player, portals) or player_stands_on_portal:
+        if not pygame.sprite.spritecollideany(player,
+                                              portals) or player_stands_on_portal:
             move(player, 'right')
             if not pygame.sprite.spritecollideany(player, portals):
                 player_stands_on_portal = False
@@ -179,7 +171,8 @@ def prepare_movement():
             create_confirmation_mini_game_dialog()
     if directions['left']:
         animation()
-        if not pygame.sprite.spritecollideany(player, portals) or player_stands_on_portal:
+        if not pygame.sprite.spritecollideany(player,
+                                              portals) or player_stands_on_portal:
             move(player, 'left')
             if not pygame.sprite.spritecollideany(player, portals):
                 player_stands_on_portal = False
@@ -190,7 +183,8 @@ def prepare_movement():
             create_confirmation_mini_game_dialog()
     if directions['up']:
         animation()
-        if not pygame.sprite.spritecollideany(player, portals) or player_stands_on_portal:
+        if not pygame.sprite.spritecollideany(player,
+                                              portals) or player_stands_on_portal:
             move(player, 'up')
             if not pygame.sprite.spritecollideany(player, portals):
                 player_stands_on_portal = False
@@ -201,7 +195,8 @@ def prepare_movement():
             create_confirmation_mini_game_dialog()
     if directions['down']:
         animation()
-        if not pygame.sprite.spritecollideany(player, portals) or player_stands_on_portal:
+        if not pygame.sprite.spritecollideany(player,
+                                              portals) or player_stands_on_portal:
             move(player, 'down')
             if not pygame.sprite.spritecollideany(player, portals):
                 player_stands_on_portal = False
@@ -213,7 +208,6 @@ def prepare_movement():
 
 
 def create_confirmation_mini_game_dialog():
-
     global confirmation_mini_game_dialog, player_stands_on_portal, current_game
 
     for i in portals:
@@ -228,31 +222,53 @@ def create_confirmation_mini_game_dialog():
         action_short_name='OK',
         blocking=True
     )
-    confirmation_mini_game_dialog.confirm_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
-    confirmation_mini_game_dialog.confirm_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
-    confirmation_mini_game_dialog.confirm_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
-    confirmation_mini_game_dialog.confirm_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
-    confirmation_mini_game_dialog.confirm_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
-    confirmation_mini_game_dialog.confirm_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
-    confirmation_mini_game_dialog.confirm_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.confirm_button.colours[
+        'normal_bg'] = pygame.Color((240, 240, 240, 255))
+    confirmation_mini_game_dialog.confirm_button.colours[
+        'hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.confirm_button.colours[
+        'active_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.confirm_button.colours[
+        'normal_border'] = pygame.Color((255, 255, 255, 0))
+    confirmation_mini_game_dialog.confirm_button.colours[
+        'hovered_border'] = pygame.Color((0, 255, 0, 255))
+    confirmation_mini_game_dialog.confirm_button.colours[
+        'normal_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.confirm_button.colours[
+        'hovered_text'] = pygame.Color((255, 40, 40, 255))
     confirmation_mini_game_dialog.confirm_button.rebuild()
-    confirmation_mini_game_dialog.cancel_button.colours['normal_bg'] = pygame.Color((240, 240, 240, 255))
-    confirmation_mini_game_dialog.cancel_button.colours['hovered_bg'] = pygame.Color((255, 255, 255, 255))
-    confirmation_mini_game_dialog.cancel_button.colours['active_bg'] = pygame.Color((255, 255, 255, 255))
-    confirmation_mini_game_dialog.cancel_button.colours['normal_border'] = pygame.Color((255, 255, 255, 0))
-    confirmation_mini_game_dialog.cancel_button.colours['hovered_border'] = pygame.Color((0, 255, 0, 255))
-    confirmation_mini_game_dialog.cancel_button.colours['normal_text'] = pygame.Color((255, 40, 40, 255))
-    confirmation_mini_game_dialog.cancel_button.colours['hovered_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.cancel_button.colours[
+        'normal_bg'] = pygame.Color((240, 240, 240, 255))
+    confirmation_mini_game_dialog.cancel_button.colours[
+        'hovered_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.cancel_button.colours[
+        'active_bg'] = pygame.Color((255, 255, 255, 255))
+    confirmation_mini_game_dialog.cancel_button.colours[
+        'normal_border'] = pygame.Color((255, 255, 255, 0))
+    confirmation_mini_game_dialog.cancel_button.colours[
+        'hovered_border'] = pygame.Color((0, 255, 0, 255))
+    confirmation_mini_game_dialog.cancel_button.colours[
+        'normal_text'] = pygame.Color((255, 40, 40, 255))
+    confirmation_mini_game_dialog.cancel_button.colours[
+        'hovered_text'] = pygame.Color((255, 40, 40, 255))
     confirmation_mini_game_dialog.cancel_button.rebuild()
-    confirmation_mini_game_dialog.title_bar.colours['normal_bg'] = pygame.Color((0, 200, 100))
-    confirmation_mini_game_dialog.title_bar.colours['hovered_bg'] = pygame.Color((0, 200, 100))
-    confirmation_mini_game_dialog.title_bar.colours['active_bg'] = pygame.Color((0, 200, 100))
-    confirmation_mini_game_dialog.title_bar.colours['normal_text'] = pygame.Color((0, 0, 0))
-    confirmation_mini_game_dialog.title_bar.colours['hovered_text'] = pygame.Color((0, 0, 0))
-    confirmation_mini_game_dialog.title_bar.colours['active_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.colours[
+        'normal_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours[
+        'hovered_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours[
+        'active_bg'] = pygame.Color((0, 200, 100))
+    confirmation_mini_game_dialog.title_bar.colours[
+        'normal_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.colours[
+        'hovered_text'] = pygame.Color((0, 0, 0))
+    confirmation_mini_game_dialog.title_bar.colours[
+        'active_text'] = pygame.Color((0, 0, 0))
     confirmation_mini_game_dialog.title_bar.rebuild()
-    confirmation_mini_game_dialog.background_colour = pygame.color.Color((0, 200, 100))
-    confirmation_mini_game_dialog.confirmation_text.background_colour = pygame.color.Color((255, 255, 255))
+    confirmation_mini_game_dialog.background_colour = pygame.color.Color(
+        (0, 200, 100))
+    confirmation_mini_game_dialog.confirmation_text.background_colour = pygame.color.Color(
+        (255, 255, 255))
     confirmation_mini_game_dialog.confirmation_text.rebuild()
     confirmation_mini_game_dialog.rebuild()
     player_stands_on_portal = True
@@ -274,7 +290,6 @@ def move(hero, movement):
 
 
 def generate_level(level):
-
     global MINI_GAMES
 
     new_player, x, y = None, None, None
@@ -292,7 +307,8 @@ def generate_level(level):
                 level[y] = level[y][:x] + '#' + level[y][x + 1:]
             elif level[y][x] == '*':
                 Tile('empty', x, y)
-                AnimatedSprite('portal', load_image("portal.png", -1), 4, 1, x * tile_width, y * tile_height, MINI_GAMES[0])
+                AnimatedSprite('portal', load_image("portal.png", -1), 4, 1,
+                               x * tile_width, y * tile_height, MINI_GAMES[0])
                 del MINI_GAMES[0]
 
     # вернем игрока, а также размер поля в клетках
@@ -344,12 +360,12 @@ def animation():
 
 
 def draw_number_of_presents():
-
     pygame.draw.rect(screen, 'white', (0, 0, 90, 45))
     pygame.draw.rect(screen, 'black', (0, 0, 90, 45), 2)
 
     font = pygame.font.Font(None, 50)
-    string_rendered = font.render(str(number_of_presents), True, pygame.Color((0, 140, 0)))
+    string_rendered = font.render(str(number_of_presents), True,
+                                  pygame.Color((0, 140, 0)))
     intro_rect = string_rendered.get_rect()
     intro_rect.x, intro_rect.y = 12, 9
     screen.blit(string_rendered, intro_rect)
@@ -418,6 +434,11 @@ class Camera:
 
 
 if __name__ == '__main__':
+    CHANGE_COLOR = pygame.USEREVENT
+    counter = 0
+    text = '00.00'
+    pygame.time.set_timer(CHANGE_COLOR, 1000)
+    font = pygame.font.SysFont('Consolas', 30)
 
     number_of_presents = 0
 
@@ -488,11 +509,21 @@ if __name__ == '__main__':
 
     player_stands_on_portal = False
 
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
             key = pygame.key.get_pressed()
+            if event.type == CHANGE_COLOR:
+                counter += 1
+                seconds = str(counter % 60)
+                minutes = str((counter // 60))
+                if len(seconds) == 1:
+                    seconds = '0' + seconds
+                if len(minutes) == 1:
+                    minutes = '0' + minutes
+                text = minutes + '.' + seconds
             if event.type == pygame.KEYDOWN:
                 animation()
                 if event.key == pygame.K_RIGHT:
@@ -514,42 +545,45 @@ if __name__ == '__main__':
                 elif event.key == pygame.K_DOWN:
                     directions['down'] = False
             if event.type == pygame.USEREVENT:
-                if event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
-                    if current_game == 'крестики-нолики':
-                        tic_tac_toe()
-                        for i in portals:
-                            if i.game == 'крестики-нолики':
-                                i.kill()
-                    elif current_game == '3 в ряд':
-                        game_three_in_row()
-                        for i in portals:
-                            if i.game == '3 в ряд':
-                                i.kill()
-                    elif current_game == '2048':
-                        game_2048()
-                        for i in portals:
-                            if i.game == '2048':
-                                i.kill()
-                    elif current_game == 'сапёр':
-                        saper()
-                        for i in portals:
-                            if i.game == 'сапёр':
-                                i.kill()
-                    elif current_game == 'башня':
-                        tower()
-                        for i in portals:
-                            if i.game == 'башня':
-                                i.kill()
-                    elif current_game == 'змейка':
-                        snake()
-                        for i in portals:
-                            if i.game == 'змейка':
-                                i.kill()
-                    elif current_game == 'тетрис':
-                        mini_game_tetris()
-                        for i in portals:
-                            if i.game == 'тетрис':
-                                i.kill()
+                try:
+                    if event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
+                        if current_game == 'крестики-нолики':
+                            tic_tac_toe()
+                            for i in portals:
+                                if i.game == 'крестики-нолики':
+                                    i.kill()
+                        elif current_game == '3 в ряд':
+                            game_three_in_row()
+                            for i in portals:
+                                if i.game == '3 в ряд':
+                                    i.kill()
+                        elif current_game == '2048':
+                            game_2048()
+                            for i in portals:
+                                if i.game == '2048':
+                                    i.kill()
+                        elif current_game == 'сапёр':
+                            saper()
+                            for i in portals:
+                                if i.game == 'сапёр':
+                                    i.kill()
+                        elif current_game == 'башня':
+                            tower()
+                            for i in portals:
+                                if i.game == 'башня':
+                                    i.kill()
+                        elif current_game == 'змейка':
+                            snake()
+                            for i in portals:
+                                if i.game == 'змейка':
+                                    i.kill()
+                        elif current_game == 'тетрис':
+                            mini_game_tetris()
+                            for i in portals:
+                                if i.game == 'тетрис':
+                                    i.kill()
+                except Exception:
+                    pass
 
             manager.process_events(event)
         manager.update(60 / 1000)
@@ -562,7 +596,6 @@ if __name__ == '__main__':
             camera.apply(sprite)
 
         screen.fill((0, 0, 0))
-
         portals.update()
 
         all_sprites.draw(screen)
@@ -574,6 +607,6 @@ if __name__ == '__main__':
         present_image_group.draw(screen)
 
         manager.draw_ui(screen)
-
+        screen.blit(font.render(text, True, (255, 0, 0)), (450, 10))
         pygame.display.flip()
         clock.tick(FPS)
