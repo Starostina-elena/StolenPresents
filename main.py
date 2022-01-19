@@ -1,6 +1,7 @@
 import datetime
 import os
 import sys
+import sqlite3
 
 import pygame
 import pygame_gui
@@ -16,6 +17,39 @@ import game_snake
 import tetris
 
 FPS = 60
+
+user_name = ''
+input_rect = pygame.Rect(200, 200, 140, 32)
+
+
+def get_user_name():
+    global screen, user_name, input_rect
+    base_font = pygame.font.Font(None, 32)
+    text_surface = base_font.render(user_name, True, (255, 255, 255))
+    input_rect.w = text_surface.get_width()
+    color = pygame.Color('Black')
+    pygame.draw.rect(screen, color, input_rect, 2)
+    screen.blit(text_surface, (200, 200))
+
+
+def open_database():
+    con = sqlite3.connect("database.db")
+    cur = con.cursor()
+    return con, cur
+
+
+def add_to_database(name, score, time):
+    con, cur = open_database()
+    result = cur.execute("""INSERT INTO information(name, score, time) VALUES(?, ?, ?)""",
+                         (name, score, time))
+    result.fetchall()
+    con.commit()
+
+
+def results():
+    global cur
+    result = cur.execute("""SELECT name, score, time, FROM information ORDER BY score DESK, time ASK""")
+    return result.fetchall()
 
 
 def tic_tac_toe():
@@ -89,17 +123,20 @@ def mini_game_tetris():
 
 
 def terminate():
+    add_to_database(user_name, number_of_presents, 1)
     pygame.quit()
     sys.exit()
 
 
 def start_screen():
+    global user_name
     intro_text = ["Здесь",
                   "будет",
                   "анимация"]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (800, 600))
     screen.blit(fon, (0, 0))
+    get_user_name()
     font = pygame.font.Font(None, 30)
     text_coord = 50
     for line in intro_text:
@@ -116,8 +153,16 @@ def start_screen():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == pygame.KEYDOWN or \
-                event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    user_name = user_name[:-1]
+                    pygame.display.flip()
+                elif event.key == pygame.K_RETURN:
+                    return
+                else:
+                    user_name += event.unicode
+                get_user_name()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
                 return
         pygame.display.flip()
         clock.tick(FPS)
