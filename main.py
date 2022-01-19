@@ -10,7 +10,9 @@ import tic_tac_toe_game
 import three_in_row
 import mini_game_2048
 import sapper_game
-# import stroyka
+import stroyka
+import game_snake
+import tetris
 
 
 FPS = 60
@@ -53,8 +55,6 @@ def saper():
 
     global width, height, screen, size, number_of_presents
 
-    print('!!!')
-
     if sapper_game.start():
         number_of_presents += 1
 
@@ -66,8 +66,30 @@ def tower():
 
     global width, height, screen, size, number_of_presents
 
-    # if stroyka.main():
-    #     number_of_presents += 1
+    if stroyka.main():
+        number_of_presents += 1
+
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+
+
+def snake():
+
+    global width, height, screen, size, number_of_presents
+
+    if game_snake.main():
+        number_of_presents += 1
+
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+
+
+def mini_game_tetris():
+
+    global width, height, screen, size, number_of_presents
+
+    if tetris.main():
+        number_of_presents += 1
 
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
@@ -406,7 +428,6 @@ if __name__ == '__main__':
                   '3 в ряд',
                   '2048',
                   'башня']
-    MINI_GAMES = ['крестики-нолики', '2048', '3 в ряд', 'сапёр', 'башня']
     shuffle(MINI_GAMES)
     current_game = None
 
@@ -518,6 +539,16 @@ if __name__ == '__main__':
                         tower()
                         for i in portals:
                             if i.game == 'башня':
+                                i.kill()
+                    elif current_game == 'змейка':
+                        snake()
+                        for i in portals:
+                            if i.game == 'змейка':
+                                i.kill()
+                    elif current_game == 'тетрис':
+                        mini_game_tetris()
+                        for i in portals:
+                            if i.game == 'тетрис':
                                 i.kill()
 
             manager.process_events(event)
