@@ -1,3 +1,4 @@
+import datetime
 import os
 import sys
 
@@ -434,10 +435,11 @@ class Camera:
 
 
 if __name__ == '__main__':
-    CHANGE_COLOR = pygame.USEREVENT
-    counter = 0
-    text = '00.00'
-    pygame.time.set_timer(CHANGE_COLOR, 1000)
+    # CHANGE_COLOR = pygame.USEREVENT
+    # counter = 0
+    # text = '00.00'
+    # pygame.time.set_timer(CHANGE_COLOR, 1000)
+    start_time = datetime.datetime.now()
     font = pygame.font.SysFont('Consolas', 30)
 
     number_of_presents = 0
@@ -515,15 +517,15 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 terminate()
             key = pygame.key.get_pressed()
-            if event.type == CHANGE_COLOR:
-                counter += 1
-                seconds = str(counter % 60)
-                minutes = str((counter // 60))
-                if len(seconds) == 1:
-                    seconds = '0' + seconds
-                if len(minutes) == 1:
-                    minutes = '0' + minutes
-                text = minutes + '.' + seconds
+            # if event.type == CHANGE_COLOR:
+            #     counter += 1
+            #     seconds = str(counter % 60)
+            #     minutes = str((counter // 60))
+            #     if len(seconds) == 1:
+            #         seconds = '0' + seconds
+            #     if len(minutes) == 1:
+            #         minutes = '0' + minutes
+            #     text = minutes + '.' + seconds
             if event.type == pygame.KEYDOWN:
                 animation()
                 if event.key == pygame.K_RIGHT:
@@ -607,6 +609,8 @@ if __name__ == '__main__':
         present_image_group.draw(screen)
 
         manager.draw_ui(screen)
-        screen.blit(font.render(text, True, (255, 0, 0)), (450, 10))
+        new_time = datetime.datetime.now()
+        text = str(new_time - start_time)[:7]
+        screen.blit(font.render(text, True, (255, 0, 0)), (420, 10))
         pygame.display.flip()
         clock.tick(FPS)
