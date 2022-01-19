@@ -1,6 +1,8 @@
 import pygame
 import pygame_gui
 
+import sys
+
 from random import randint
 
 
@@ -360,7 +362,7 @@ def main():
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 board.get_click(event.pos)
             if event.type == pygame.USEREVENT:
