@@ -1,10 +1,12 @@
 import os
 import sys
 import random
+import time
 
 import pygame
 
-
+flag = True
+pygame.display.set_caption('Present for Grinch')
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     # если файл не существует, то выходим
@@ -93,26 +95,46 @@ def generate_level(level):
             elif level[y][x] == '@':
                 Tile('empty', x, y)
                 new_player = Player(x, y)
-            elif level[y][x] == '!':
+            elif level[y][x] == '^':
                 Tile('chest', x, y)
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
 
+def message(msg, color):
+    font_style = pygame.font.SysFont("arial", 25)
+    mess = font_style.render(msg, True, color)
+    present = pygame.transform.scale(load_image('present.png'), (100, 100))
+    rect = present.get_rect(
+        bottomright=(100, 100))
+    screen.blit(present, rect)
+    screen.blit(mess, [30, 225])
+
 def move(hero, movement):
-    global level_x, level_y
+    global level_x, level_y, flag
     x, y = hero.pos
-    if movement == "up":
-        if y > 0 and (level_map[y - 1][x] == "." or level_map[y - 1][x] == "@" or level_map[y - 1][x] == "!"):
-            hero.move(x, y - 1)
-    elif movement == "down":
-        if y < level_y - 1 and (level_map[y + 1][x] == "." or level_map[y + 1][x] == "@" or level_map[y + 1][x] == "!"):
-            hero.move(x, y + 1)
-    elif movement == "left":
-        if x > 0 and (level_map[y][x - 1] == "." or level_map[y][x - 1] == "@" or level_map[y][x - 1] == "!"):
-            hero.move(x - 1, y)
-    elif movement == "right":
-        if x < level_x - 1 and (level_map[y][x + 1] == "." or level_map[y][x + 1] == "@" or level_map[y][x + 1] == "!"):
-            hero.move(x + 1, y)
+    if x == 7 and y == 8:
+        flag = False
+    if flag:
+        if movement == "up":
+            if y > 0 and (level_map[y - 1][x] == "." or level_map[y - 1][x] == "@" or level_map[y - 1][x] == "^"):
+                hero.move(x, y - 1)
+        elif movement == "down":
+            if y < level_y - 1 and (
+                    level_map[y + 1][x] == "." or level_map[y + 1][x] == "@" or level_map[y + 1][x] == "^"):
+                hero.move(x, y + 1)
+        elif movement == "left":
+            if x > 0 and (level_map[y][x - 1] == "." or level_map[y][x - 1] == "@" or level_map[y][x - 1] == "^"):
+                hero.move(x - 1, y)
+        elif movement == "right":
+            if x < level_x - 1 and (
+                    level_map[y][x + 1] == "." or level_map[y][x + 1] == "@" or level_map[y][x + 1] == "^"):
+                hero.move(x + 1, y)
+    else:
+        screen.fill('white')
+        message("Поздравляем! Вы нашли подарок для Гринча!", "red")
+        pygame.display.update()
+        time.sleep(4)
+        exit()
 
 
 player = None
