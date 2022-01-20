@@ -4,6 +4,8 @@ import random
 import os
 import sys
 import pygame_gui
+import datetime
+import datetime as dt
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -13,6 +15,7 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Snake Game')
 snake_block = 10
 snake_speed = 10
+t_start = datetime.datetime.now()
 font_style = pygame.font.SysFont("arial", 25)
 score_font = pygame.font.SysFont("arial", 35)
 screen.fill('white')
@@ -144,7 +147,7 @@ def confirmation_exit_dialog():
 
 def main():
     global game, x_snake, y_snake, x_food, y_food, x_plussnake, y_plussnake, snake_coords, count, coords, \
-        width, height, screen, manager, confirmation_mini_game_dialog
+        width, height, screen, manager, confirmation_mini_game_dialog, t_start
     manager = pygame_gui.UIManager((width, height))
 
     current_block_id = None
@@ -203,22 +206,24 @@ def main():
                 elif event.user_type == pygame_gui.UI_WINDOW_CLOSE:
                     status_game_blocked = False
             manager.process_events(event)
-        counter, text = 60, '10'.rjust(3)
         pygame.time.set_timer(pygame.USEREVENT, 1000)
         font = pygame.font.SysFont('Consolas', 30)
-
+        t_n = datetime.datetime.now()
+        delta_time1 = (t_n - t_start)
+        text = str(60 - delta_time1.seconds)
+        if str(60 - delta_time1.seconds) == "0":
+            game = False
         if game:
+
             while game:
                 for event in pygame.event.get():
-                    if event.type == pygame.USEREVENT:
-                        counter -= 1
-                        if counter > 0:
-                            text = str(counter).rjust(3)
-                        else:
-                            'boom!'
-                            game = False
                     if event.type == pygame.QUIT:
-                        sys.exit()
+                        break
+                    t_n = datetime.datetime.now()
+                    delta_time1 = (t_n - t_start)
+                    text = str(60 - delta_time1.seconds)
+                    if str(60 - delta_time1.seconds) == "0":
+                        game = False
                 else:
                     screen.blit(font.render(text, True, (0, 0, 0)), (80, 0))
                     pygame.display.flip()
