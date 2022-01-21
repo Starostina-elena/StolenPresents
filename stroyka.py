@@ -108,7 +108,7 @@ class Landing(pygame.sprite.Sprite):
                     self.rect.right = 0
             else:
                 if not pygame.sprite.collide_mask(self, mountain) and self.rect.y < y_pos:
-                    self.rect = self.rect.move(0, 1)
+                    self.rect = self.rect.move(0, 5)
                 if self.rect.y == y_pos:
                     my += [self.rect.x, self.rect.y]
                     current_block_id = id(Landing([122, 10]))
@@ -116,14 +116,12 @@ class Landing(pygame.sprite.Sprite):
                     result += 1
                     count += 1
                 if counter != 1 and counter != 2:
-                    if abs(int(my[-2]) - int(my[0])) >= 18 or abs(int(my[-2]) - int(my[-4])) >= 18:
+                    if abs(int(my[-2]) - int(my[0])) >= 13 or abs(int(my[-2]) - int(my[-4])) >= 13:
                         print("Game over")
-                        print(counter)
                         Game()
                 if counter == 2:
-                    if abs(int(my[-2]) - int(my[0])):
+                    if abs(int(my[-2]) - int(my[0])) >= 13:
                         print("Game over")
-                        print(counter)
                         Game()
                 if counter == 9:
                     Game()
@@ -260,7 +258,7 @@ def main():
         t = clock.tick(20)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                sys.exit()
+                running = False
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == exit_button:
