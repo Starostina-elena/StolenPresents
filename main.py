@@ -101,9 +101,9 @@ def terminate():
 
 
 def start_screen():
-    intro_text = ["Здесь",
-                  "будет",
-                  "анимация"]
+    intro_text = ["Придумайте имя!",
+                  "Когда будете готовы,",
+                  "нажмите пробел"]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (800, 600))
     screen.blit(fon, (0, 0))
@@ -121,24 +121,29 @@ def start_screen():
     manager2 = pygame_gui.UIManager((width, height))
 
     player_name = pygame_gui.elements.UITextEntryLine(
-        relative_rect=pygame.Rect((350, 100), (100, 25)), manager=manager2
+        relative_rect=pygame.Rect((100, 100), (350, 100)), manager=manager2
     )
+    player_name.background_colour = pygame.Color((255, 255, 255))
+    player_name.border_colour = pygame.Color((0, 255, 0))
+    player_name.text_colour = pygame.Color((200, 50, 0))
+    player_name.border_width = 5
+    player_name.font.size = 30
+    player_name.length_limit = 18
+    player_name.rebuild()
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
-            elif event.type == pygame.USEREVENT:
-                if event.user_type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
-                    print(event.text)
-                    player_name.kill()
             elif event.type == pygame.KEYDOWN:
-                if event.key == 32:  # 32 - код пробела
-                    return
+                if event.key == 32 and player_name.get_text():  # 32 - код пробела
+                    return player_name.get_text()
             manager2.process_events(event)
 
         manager2.update(60/1000)
+        player_name.redraw()
         manager2.draw_ui(screen)
+        
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -485,7 +490,8 @@ if __name__ == '__main__':
 
     manager = pygame_gui.UIManager((width, height))
 
-    start_screen()
+    user_name = start_screen()
+    print(user_name)
 
     player, level_x, level_y, level_map = \
         generate_level(load_level('map2.txt'))
