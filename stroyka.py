@@ -12,6 +12,7 @@ horizontal_borders = pygame.sprite.Group()
 vertical_borders = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 result = 0
+winner = False
 
 
 def load_image(name, colorkey=None):
@@ -50,26 +51,13 @@ a = []
 font_style = pygame.font.SysFont("arial", 25)
 score_font = pygame.font.SysFont("arial", 35)
 flag_of_game = True
+blocked = False
 
 
 def message(msg, color):
     mess = font_style.render(msg, True, color)
     screen.blit(mess, [200, 225])
 
-def Game():
-    global game, counter
-    if counter >= 8:
-        screen.fill('white')
-        message("You Win!", "red")
-        pygame.display.update()
-        time.sleep(3)
-        exit()
-    else:
-        screen.fill('white')
-        message("You Lost!", "red")
-        pygame.display.update()
-        time.sleep(3)
-        exit()
 
 
 class Landing(pygame.sprite.Sprite):
@@ -95,13 +83,23 @@ class Landing(pygame.sprite.Sprite):
             if count != 1:
                 y_pos -= 25
 
+    def show_message(self, message, font_size=50):
+        global width, screen
+        font = pygame.font.Font(None, font_size)
+        string_rendered = font.render(message, True, pygame.Color('white'))
+        intro_rect = string_rendered.get_rect()
+        intro_rect.x, intro_rect.y = width // 2 - intro_rect.width // 2, 10
+        screen.blit(string_rendered, intro_rect)
+
     def update(self):
 
         global current_block_id
 
         try:
-            global y_pos, count, result, my, y_p, flag_of_adding, flag_of_game
+            global y_pos, count, result, my, y_p, flag_of_adding, flag_of_game, blocked, winner
             count += 1
+            if blocked:
+                return
             if result % 2 != 0 and id(self) == current_block_id:
                 self.rect.x += 5
                 if self.rect.left > width:
@@ -115,16 +113,23 @@ class Landing(pygame.sprite.Sprite):
                     y_p += 1
                     result += 1
                     count += 1
+                if counter == 8:
+                    pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+                    self.show_message('Вы победили')
+                    if not winner:
+                        show_rules('Благодаря вам Дед Мороз нашел 1 подарок!')
+                    winner = True
+                    blocked = True
                 if counter != 1 and counter != 2:
                     if abs(int(my[-2]) - int(my[0])) >= 13 or abs(int(my[-2]) - int(my[-4])) >= 13:
-                        print("Game over")
-                        Game()
+                        pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+                        self.show_message('Вы проиграли')
+                        blocked = True
                 if counter == 2:
                     if abs(int(my[-2]) - int(my[0])) >= 13:
-                        print("Game over")
-                        Game()
-                if counter == 9:
-                    Game()
+                        pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+                        self.show_message('Вы проиграли')
+                        blocked = True
         except Exception as a:
             print(a)
 
@@ -214,7 +219,8 @@ def confirmation_exit_dialog():
 
 
 def main():
-    global width, height, screen, manager, confirmation_mini_game_dialog, result, current_block_id, y_p, xx, yy, my
+    global width, height, screen, manager, confirmation_mini_game_dialog, result, current_block_id, y_p, xx, yy, my, \
+        winner
 
     width, height = 550, 550
     screen = pygame.display.set_mode((width, height))
@@ -286,6 +292,8 @@ def main():
             all_sprites.draw(screen)
         manager.draw_ui(screen)
         pygame.display.flip()
+    time.sleep(2)
+    return blocked
 
 
 if __name__ == '__main__':
