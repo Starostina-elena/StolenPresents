@@ -1,8 +1,7 @@
 import datetime
 import os
 import sys
-import sqlite3
-
+import time
 import pygame
 import pygame_gui
 
@@ -15,44 +14,13 @@ import sapper_game
 import stroyka
 import game_snake
 import tetris
+from database import add_to_database, show_highscores
 
 FPS = 60
 
-user_name = ''
-input_rect = pygame.Rect(200, 200, 140, 32)
-
-
-def get_user_name():
-    global screen, user_name, input_rect
-    base_font = pygame.font.Font(None, 32)
-    text_surface = base_font.render(user_name, True, (255, 255, 255))
-    input_rect.w = text_surface.get_width()
-    color = pygame.Color('Black')
-    pygame.draw.rect(screen, color, input_rect, 2)
-    screen.blit(text_surface, (200, 200))
-
-
-def open_database():
-    con = sqlite3.connect("database.db")
-    cur = con.cursor()
-    return con, cur
-
-
-def add_to_database(name, score, time):
-    con, cur = open_database()
-    result = cur.execute("""INSERT INTO information(name, score, time) VALUES(?, ?, ?)""",
-                         (name, score, time))
-    result.fetchall()
-    con.commit()
-
-
-def results():
-    global cur
-    result = cur.execute("""SELECT name, score, time, FROM information ORDER BY score DESK, time ASK""")
-    return result.fetchall()
-
 
 def tic_tac_toe():
+
     global width, height, screen, size, number_of_presents
 
     if tic_tac_toe_game.start():
@@ -63,6 +31,7 @@ def tic_tac_toe():
 
 
 def game_three_in_row():
+
     global width, height, screen, size, number_of_presents
 
     if three_in_row.main():
@@ -73,6 +42,7 @@ def game_three_in_row():
 
 
 def game_2048():
+
     global width, height, screen, size, number_of_presents
 
     if mini_game_2048.main():
@@ -83,6 +53,7 @@ def game_2048():
 
 
 def saper():
+
     global width, height, screen, size, number_of_presents
 
     if sapper_game.start():
@@ -93,6 +64,7 @@ def saper():
 
 
 def tower():
+
     global width, height, screen, size, number_of_presents
 
     if stroyka.main():
@@ -103,6 +75,7 @@ def tower():
 
 
 def snake():
+
     global width, height, screen, size, number_of_presents
 
     if game_snake.main():
@@ -113,6 +86,7 @@ def snake():
 
 
 def mini_game_tetris():
+
     global width, height, screen, size, number_of_presents
 
     if tetris.main():
@@ -123,47 +97,53 @@ def mini_game_tetris():
 
 
 def terminate():
-    add_to_database(user_name, number_of_presents, 1)
     pygame.quit()
     sys.exit()
 
 
 def start_screen():
-    global user_name
-    intro_text = ["Здесь",
-                  "будет",
-                  "анимация"]
+    intro_text = ["Придумайте имя! Когда будете",
+                  "готовы, нажмите пробел или энтер"]
 
-    fon = pygame.transform.scale(load_image('fon.jpg'), (800, 600))
+    fon = pygame.transform.scale(load_image('main_beginning_fon.jpg'), (800, 600))
     screen.blit(fon, (0, 0))
-    get_user_name()
     font = pygame.font.Font(None, 30)
-    text_coord = 50
+    text_coord = 25
     for line in intro_text:
-        print(line)
         string_rendered = font.render(line, 1, pygame.Color('white'))
         intro_rect = string_rendered.get_rect()
         text_coord += 10
         intro_rect.top = text_coord
-        intro_rect.x = 10
+        intro_rect.x = 100
         text_coord += intro_rect.height
         screen.blit(string_rendered, intro_rect)
+
+    manager2 = pygame_gui.UIManager((width, height))
+
+    player_name = pygame_gui.elements.UITextEntryLine(
+        relative_rect=pygame.Rect((100, 100), (350, 100)), manager=manager2
+    )
+    player_name.background_colour = pygame.Color((255, 255, 255))
+    player_name.border_colour = pygame.Color((0, 255, 0))
+    player_name.text_colour = pygame.Color((200, 50, 0))
+    player_name.border_width = 5
+    player_name.font.size = 30
+    player_name.length_limit = 18
+    player_name.rebuild()
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_BACKSPACE:
-                    user_name = user_name[:-1]
-                    pygame.display.flip()
-                elif event.key == pygame.K_RETURN:
-                    return
-                else:
-                    user_name += event.unicode
-                get_user_name()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                return
+                if event.key in [13, 32] and player_name.get_text():  # 32 - код пробела, 13 - enter
+                    return player_name.get_text()
+            manager2.process_events(event)
+
+        manager2.update(60/1000)
+        player_name.redraw()
+        manager2.draw_ui(screen)
+        
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -484,6 +464,7 @@ if __name__ == '__main__':
     # counter = 0
     # text = '00.00'
     # pygame.time.set_timer(CHANGE_COLOR, 1000)
+    global user_name, user_time
     start_time = datetime.datetime.now()
     font = pygame.font.SysFont('Consolas', 30)
 
@@ -538,15 +519,16 @@ if __name__ == '__main__':
 
     clock = pygame.time.Clock()
 
-    start_screen()
+    manager = pygame_gui.UIManager((width, height))
+
+    user_name = start_screen()
+    print(user_name)
 
     player, level_x, level_y, level_map = \
         generate_level(load_level('map2.txt'))
 
     size = width, height = 11 * tile_width, 11 * tile_height
     screen = pygame.display.set_mode(size)
-
-    manager = pygame_gui.UIManager((width, height))
 
     camera = Camera()
 
@@ -556,11 +538,12 @@ if __name__ == '__main__':
 
     player_stands_on_portal = False
 
-
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                add_to_database(user_name, number_of_presents, user_time)
                 terminate()
+
             key = pygame.key.get_pressed()
             # if event.type == CHANGE_COLOR:
             #     counter += 1
@@ -571,6 +554,12 @@ if __name__ == '__main__':
             #     if len(minutes) == 1:
             #         minutes = '0' + minutes
             #     text = minutes + '.' + seconds
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                show_highscores()
+                #time.sleep(4)
+                size = width, height = 550, 550
+                screen = pygame.display.set_mode(size)
+                pygame.display.update()
             if event.type == pygame.KEYDOWN:
                 animation()
                 if event.key == pygame.K_RIGHT:
@@ -629,8 +618,8 @@ if __name__ == '__main__':
                             for i in portals:
                                 if i.game == 'тетрис':
                                     i.kill()
-                except Exception:
-                    pass
+                except Exception as e:
+                    print(e)
 
             manager.process_events(event)
         manager.update(60 / 1000)
@@ -656,6 +645,7 @@ if __name__ == '__main__':
         manager.draw_ui(screen)
         new_time = datetime.datetime.now()
         text = str(new_time - start_time)[:7]
+        user_time = text
         screen.blit(font.render(text, True, (255, 0, 0)), (420, 10))
         pygame.display.flip()
         clock.tick(FPS)
