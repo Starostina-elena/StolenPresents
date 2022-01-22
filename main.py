@@ -105,7 +105,7 @@ def start_screen():
     intro_text = ["Придумайте имя! Когда будете",
                   "готовы, нажмите пробел или энтер"]
 
-    fon = pygame.transform.scale(load_image('fon.jpg'), (800, 600))
+    fon = pygame.transform.scale(load_image('main_beginning_fon.jpg'), (800, 600))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 25

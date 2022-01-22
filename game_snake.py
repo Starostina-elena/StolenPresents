@@ -148,6 +148,10 @@ def confirmation_exit_dialog():
 def main():
     global game, x_snake, y_snake, x_food, y_food, x_plussnake, y_plussnake, snake_coords, count, coords, \
         width, height, screen, manager, confirmation_mini_game_dialog, t_start
+
+    width, height = 550, 550
+    screen = pygame.display.set_mode((width, height))
+
     manager = pygame_gui.UIManager((width, height))
 
     current_block_id = None
