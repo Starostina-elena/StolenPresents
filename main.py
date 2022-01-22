@@ -103,7 +103,7 @@ def terminate():
 def start_screen():
     intro_text = ["Придумайте имя!",
                   "Когда будете готовы,",
-                  "нажмите пробел"]
+                  "нажмите пробел или энтер"]
 
     fon = pygame.transform.scale(load_image('fon.jpg'), (800, 600))
     screen.blit(fon, (0, 0))
@@ -136,7 +136,7 @@ def start_screen():
             if event.type == pygame.QUIT:
                 terminate()
             elif event.type == pygame.KEYDOWN:
-                if event.key == 32 and player_name.get_text():  # 32 - код пробела
+                if event.key in [13, 32] and player_name.get_text():  # 32 - код пробела, 13 - enter
                     return player_name.get_text()
             manager2.process_events(event)
 
