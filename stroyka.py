@@ -59,6 +59,23 @@ def message(msg, color):
     screen.blit(mess, [200, 225])
 
 
+def show_message_above_field():
+
+    global width, screen
+
+    if winner:
+        message = 'Вы победили'
+    else:
+        message = 'Вы проиграли'
+
+    pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+
+    font = pygame.font.Font(None, 50)
+    string_rendered = font.render(message, True, pygame.Color('white'))
+    intro_rect = string_rendered.get_rect()
+    intro_rect.x, intro_rect.y = width // 2 - intro_rect.width // 2, 10
+    screen.blit(string_rendered, intro_rect)
+
 
 class Landing(pygame.sprite.Sprite):
     image = load_image("kvadrat.png")
@@ -96,10 +113,11 @@ class Landing(pygame.sprite.Sprite):
         global current_block_id
 
         try:
-            global y_pos, count, result, my, y_p, flag_of_adding, flag_of_game, blocked, winner
+            global y_pos, count, result, my, y_p, flag_of_adding, flag_of_game, blocked, winner, should_show_message
             count += 1
             if blocked:
                 return
+
             if result % 2 != 0 and id(self) == current_block_id:
                 self.rect.x += 5
                 if self.rect.left > width:
@@ -114,21 +132,18 @@ class Landing(pygame.sprite.Sprite):
                     result += 1
                     count += 1
                 if counter == 8:
-                    pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
-                    self.show_message('Вы победили')
+                    should_show_message = True
                     if not winner:
                         show_rules('Благодаря вам Дед Мороз нашел 1 подарок!')
                     winner = True
                     blocked = True
                 if counter != 1 and counter != 2:
                     if abs(int(my[-2]) - int(my[0])) >= 13 or abs(int(my[-2]) - int(my[-4])) >= 13:
-                        pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
-                        self.show_message('Вы проиграли')
+                        should_show_message = True
                         blocked = True
                 if counter == 2:
                     if abs(int(my[-2]) - int(my[0])) >= 13:
-                        pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
-                        self.show_message('Вы проиграли')
+                        should_show_message = True
                         blocked = True
         except Exception as a:
             print(a)
@@ -220,11 +235,15 @@ def confirmation_exit_dialog():
 
 def main():
     global width, height, screen, manager, confirmation_mini_game_dialog, result, current_block_id, y_p, xx, yy, my, \
-        winner
+        winner, blocked, should_show_message
 
     width, height = 550, 550
     screen = pygame.display.set_mode((width, height))
     manager = pygame_gui.UIManager((width, height))
+
+    should_show_message = False
+
+    winner, blocked = False, False
 
     current_block_id = None
 
@@ -264,7 +283,7 @@ def main():
         t = clock.tick(20)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                sys.exit()
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == exit_button:
@@ -289,11 +308,13 @@ def main():
         manager.update(60 / 1000)
         if not status_game_blocked:
             all_sprites.update()
-            all_sprites.draw(screen)
+        all_sprites.draw(screen)
+        if should_show_message:
+            show_message_above_field()
         manager.draw_ui(screen)
         pygame.display.flip()
-    time.sleep(2)
-    return blocked
+
+    return winner
 
 
 if __name__ == '__main__':
