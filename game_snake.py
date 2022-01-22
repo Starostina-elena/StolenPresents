@@ -195,7 +195,7 @@ def main():
         t = clock.tick(20)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
+                sys.exit()
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == exit_button:
@@ -222,7 +222,7 @@ def main():
             while game:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
-                        break
+                        sys.exit()
                     t_n = datetime.datetime.now()
                     delta_time1 = (t_n - t_start)
                     text = str(60 - delta_time1.seconds)
