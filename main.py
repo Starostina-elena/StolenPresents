@@ -790,9 +790,10 @@ if __name__ == '__main__':
                                 if i.game == 'тетрис':
                                     i.kill()
                         elif current_game == 'Выход':
-                            if number_of_presents == 0:
+                            if number_of_presents == 7:
                                 present_for_grinch()
                             presents_for_citizens()
+                            show_highscores(True)
                 except Exception as e:
                     print(e)
 

@@ -43,7 +43,7 @@ def load_image(name, colorkey=0, transform=None):
     return image
 
 
-def show_highscores():
+def show_highscores(mode=False):
     # вывод результатов
     res = results()
     background_colour = (255, 255, 255)
@@ -84,7 +84,8 @@ def show_highscores():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            # Если mode=True, окно нельзя закрыть пробелом
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and not mode:
                 return
         pygame.display.flip()
         pygame.display.update()
