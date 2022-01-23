@@ -720,7 +720,6 @@ if __name__ == '__main__':
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                add_to_database(user_name, number_of_presents, user_time)
                 terminate()
             key = pygame.key.get_pressed()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
@@ -790,6 +789,7 @@ if __name__ == '__main__':
                                 if i.game == 'тетрис':
                                     i.kill()
                         elif current_game == 'Выход':
+                            add_to_database(user_name, number_of_presents, user_time)
                             if number_of_presents == 7:
                                 present_for_grinch()
                             presents_for_citizens()
