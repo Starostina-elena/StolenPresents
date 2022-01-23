@@ -7,13 +7,11 @@ import pygame
 
 def load_image(name, colorkey=0, transform=None):
     fullname = os.path.join('data', name)
-    # если файл не существует, то выходим
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
     image = pygame.image.load(fullname)
     if colorkey is not None:
-        # image = image.convert()
         if colorkey == -1:
             colorkey = image.get_at((0, 0))
         image.set_colorkey(colorkey)
@@ -27,6 +25,7 @@ def load_image(name, colorkey=0, transform=None):
 def terminate():
     pygame.quit()
     sys.exit()
+
 
 def start_screen():
     intro_text = ["Пройдите к деревню!"]
@@ -68,13 +67,13 @@ def load_level(filename):
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
-
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
         super().__init__(tiles_group, all_sprites)
         self.image = tile_images[tile_type]
         self.rect = self.image.get_rect().move(
             tile_width * pos_x, tile_height * pos_y)
+
 
 def animation():
     global animation_n
@@ -83,6 +82,7 @@ def animation():
     if animation_n % 5 == 0:
         animation_i = (animation_i + 1) % 8
         player.change_picture(animation_i)
+
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos_x, pos_y):
@@ -100,12 +100,14 @@ class Player(pygame.sprite.Sprite):
     def change_picture(self, n):
         self.image = animation_set[n]
 
+
 def generate_level(level):
-    global a
+    global houses
     new_player, x, y = None, None, None
     counter_of_houses = 0
     for y in range(len(level)):
         for x in range(len(level[y])):
+            # отрисовка объектов
             if level[y][x] == '.':
                 Tile('empty', x, y)
             elif level[y][x] == '#':
@@ -113,14 +115,17 @@ def generate_level(level):
             elif level[y][x] == '@':
                 Tile('empty', x, y)
                 new_player = Player(x, y)
+            elif level[y][x] == '^':
+                Tile('elochka', x, y)
             elif level[y][x] == '!':
                 counter_of_houses += 1
-                if counter_of_houses <= a:
+                if counter_of_houses <= houses:
                     Tile('chest', x, y)
                 else:
                     Tile('empty', x, y)
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
+
 
 def message(msg, color):
     font_style = pygame.font.SysFont("arial", 25)
@@ -131,7 +136,8 @@ def message(msg, color):
     screen.blit(present, rect)
     screen.blit(mess, [30, 225])
 
-def show_message(message, font_size=50):
+
+def show_message(message, font_size=50):  # сообщение
     global width, screen
     font = pygame.font.Font(None, font_size)
     string_rendered = font.render(message, True, pygame.Color('white'))
@@ -143,8 +149,9 @@ def show_message(message, font_size=50):
     screen.blit(present, rect)
     screen.blit(string_rendered, intro_rect)
 
+
 def move(hero, movement):
-    global level_x, level_y, flag, a, x_position, y_position, a, houses, houses_coordinars
+    global level_x, level_y, flag, x_position, y_position, houses, houses_coordinars
     x, y = hero.pos
     if flag:
         if movement == "up":
@@ -155,6 +162,7 @@ def move(hero, movement):
                         houses -= 1
                         screen.fill('white')
                         pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+                        # вывод сообщения
                         if houses == 1:
                             show_message(f"Остался {houses} подарок")
                         elif houses == 2 or houses == 3 or houses == 4:
@@ -174,6 +182,7 @@ def move(hero, movement):
                         houses -= 1
                         screen.fill('white')
                         pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+                        # вывод сообщения
                         if houses == 1:
                             show_message(f"Остался {houses} подарок")
                         elif houses == 2 or houses == 3 or houses == 4:
@@ -192,6 +201,7 @@ def move(hero, movement):
                         houses -= 1
                         screen.fill('white')
                         pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+                        # вывод сообщения
                         if houses == 1:
                             show_message(f"Остался {houses} подарок")
                         elif houses == 2 or houses == 3 or houses == 4:
@@ -211,6 +221,7 @@ def move(hero, movement):
                         houses -= 1
                         screen.fill('white')
                         pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+                        # вывод сообщения
                         if houses == 1:
                             show_message(f"Остался {houses} подарок")
                         elif houses == 2 or houses == 3 or houses == 4:
@@ -238,26 +249,33 @@ if __name__ == '__main__':
     animation_i = 0
     player_image = animation_set[animation_i]
     flag = True
-    a = int(input())  # количество подарков
-    houses = a
-    pygame.display.set_caption('Present for people')
-    size = width, height = 550, 550
-    screen = pygame.display.set_mode(size)
-    my = []
-    if a == 1:
-        houses_coordinars = [[2, 3]]
-    elif a == 2:
-        houses_coordinars = [[2, 3], [2, 5]]
-    elif a == 3:
-        houses_coordinars = [[2, 3], [2, 7], [2, 5]]
-    elif a == 4:
-        houses_coordinars = [[2, 3], [8, 2], [2, 7], [2, 5]]
-    elif a == 5:
-        houses_coordinars = [[2, 3], [8, 2], [8, 4], [2, 7], [2, 5]]
-    elif a == 6:
-        houses_coordinars = [[2, 3], [8, 2], [8, 4], [8, 6], [2, 7], [2, 5]]
-    elif a == 7:
-        houses_coordinars = [[2, 3], [8, 2], [8, 4], [8, 6], [8, 8], [2, 7], [2, 5]]
+
+
+    def distribution(number_of_presents):  # функция для о
+        # пределения координат всех домов по общему количеству подарков
+        global houses_coordinars
+        houses = number_of_presents
+        pygame.display.set_caption('Present for people')
+        size = width, height = 550, 550
+        screen = pygame.display.set_mode(size)
+        if number_of_presents == 1:  # если 1 подарок
+            houses_coordinars = [[8, 2]]
+        elif number_of_presents == 2:  # если 2 подарка
+            houses_coordinars = [[8, 2], [2, 3]]
+        elif number_of_presents == 3:  # если 3 подарка
+            houses_coordinars = [[8, 2], [2, 3], [8, 4]]
+        elif number_of_presents == 4:  # если 4 подарка
+            houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5]]
+        elif number_of_presents == 5:  # если 5 подарков
+            houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5], [8, 6]]
+        elif number_of_presents == 6:  # если 6 подарков
+            houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5], [8, 6], [2, 7]]
+        elif number_of_presents == 7:  # если 7 подарков
+            houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5], [8, 6], [2, 7], [8, 8]]
+
+
+    distribution()
+    houses = len(houses_coordinars)
     FPS = 50
     x_position = 0
     y_position = 0
@@ -270,7 +288,8 @@ if __name__ == '__main__':
     tile_images = {
         'wall': load_image('fffa.png'),
         'empty': load_image('sn.png'),
-        'chest': load_image('h.png')
+        'chest': load_image('h.png'),
+        'elochka': load_image('elka.png')
     }
     player_image = load_image('dedmoroz.png')
 
