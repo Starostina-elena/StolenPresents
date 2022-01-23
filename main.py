@@ -101,22 +101,31 @@ def terminate():
     sys.exit()
 
 
+def show_text_message(text, position, color='white', font_size=30):
+
+    if type(text) == str:
+        text = [text]
+
+    font = pygame.font.Font(None, font_size)
+    text_coord = position[1]
+    for line in text:
+        string_rendered = font.render(line, 1, pygame.Color(color))
+        intro_rect = string_rendered.get_rect()
+        text_coord += font_size // 3
+        intro_rect.top = text_coord
+        intro_rect.x = position[0]
+        text_coord += intro_rect.height
+        screen.blit(string_rendered, intro_rect)
+
+
 def start_screen():
-    intro_text = ["Придумайте имя! Когда будете",
-                  "готовы, нажмите пробел или энтер"]
 
     fon = pygame.transform.scale(load_image('main_beginning_fon.jpg'), (800, 600))
     screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
-    text_coord = 25
-    for line in intro_text:
-        string_rendered = font.render(line, 1, pygame.Color('white'))
-        intro_rect = string_rendered.get_rect()
-        text_coord += 10
-        intro_rect.top = text_coord
-        intro_rect.x = 100
-        text_coord += intro_rect.height
-        screen.blit(string_rendered, intro_rect)
+
+    intro_text = ["Придумайте имя! Когда будете",
+                  "готовы, нажмите пробел или энтер"]
+    show_text_message(intro_text, (100, 25))
 
     manager2 = pygame_gui.UIManager((width, height))
 
@@ -146,6 +155,57 @@ def start_screen():
         
         pygame.display.flip()
         clock.tick(FPS)
+
+
+def show_history():
+
+    screen.fill((0, 0, 0))
+
+    text = ['Гринч всегда ненавидел Новый год,',
+            'и поэтому он решил испортить',
+            'праздник',
+            '']
+    text2 = ['(нажмите любую кнопку, чтобы продолжить)']
+    show_text_message(text, (25, 100), font_size=40)
+    show_text_message(text2, (50, 300))
+
+    slide = 0
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            elif event.type == pygame.KEYDOWN:
+                slide += 1
+                if slide == 1:
+                    screen.fill((255, 255, 255))
+                    image = pygame.transform.scale(load_image('main_beginning_pic_1.jpg'), (550, 550))
+                    image.set_colorkey(image.get_at((5, 60)))
+                    screen.blit(image, (0, 0))
+                elif slide == 2:
+                    image = pygame.transform.scale(load_image('main_beginning_pic_2.jpg'), (1100, 550))
+                    screen.blit(image, (-400, 0))
+                elif slide == 3:
+                    text = [
+                        'Гринч украл Деда Мороза',
+                        'и все его подарки...'
+                    ]
+                    show_text_message(text, (50, 200), font_size=40)
+                elif slide == 4:
+                    image = pygame.transform.scale(load_image('main_beginning_pic_3.jpg'), (700, 550))
+                    screen.blit(image, (-75, 0))
+                elif slide == 5:
+                    text = [
+                        'Теперь Дед Мороз заперт в',
+                        'подземелье Гринча.',
+                        'Помогите ему найти все подарки',
+                        'и сбежать!'
+                    ]
+                    show_text_message(text, (35, 10), color=(150, 205, 150), font_size=40)
+                else:
+                    return
+
+        pygame.display.flip()
 
 
 def load_level(filename):
@@ -521,7 +581,8 @@ if __name__ == '__main__':
     manager = pygame_gui.UIManager((width, height))
 
     user_name = start_screen()
-    print(user_name)
+
+    show_history()
 
     player, level_x, level_y, level_map = \
         generate_level(load_level('map2.txt'))
