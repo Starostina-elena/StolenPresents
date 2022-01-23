@@ -1,7 +1,6 @@
 import datetime
 import os
 import sys
-import time
 import pygame
 import pygame_gui
 
@@ -20,7 +19,6 @@ FPS = 60
 
 
 def tic_tac_toe():
-
     global width, height, screen, size, number_of_presents
 
     if tic_tac_toe_game.start():
@@ -31,7 +29,6 @@ def tic_tac_toe():
 
 
 def game_three_in_row():
-
     global width, height, screen, size, number_of_presents
 
     if three_in_row.main():
@@ -42,7 +39,6 @@ def game_three_in_row():
 
 
 def game_2048():
-
     global width, height, screen, size, number_of_presents
 
     if mini_game_2048.main():
@@ -53,7 +49,6 @@ def game_2048():
 
 
 def saper():
-
     global width, height, screen, size, number_of_presents
 
     if sapper_game.start():
@@ -64,7 +59,6 @@ def saper():
 
 
 def tower():
-
     global width, height, screen, size, number_of_presents
 
     if stroyka.main():
@@ -75,7 +69,6 @@ def tower():
 
 
 def snake():
-
     global width, height, screen, size, number_of_presents
 
     if game_snake.main():
@@ -86,7 +79,6 @@ def snake():
 
 
 def mini_game_tetris():
-
     global width, height, screen, size, number_of_presents
 
     if tetris.main():
@@ -103,7 +95,7 @@ def terminate():
 
 def start_screen():
     intro_text = ["Придумайте имя! Когда будете",
-                  "готовы, нажмите пробел или энтер"]
+                  "готовы, нажмите пробел или enter"]
 
     fon = pygame.transform.scale(load_image('main_beginning_fon.jpg'), (800, 600))
     screen.blit(fon, (0, 0))
@@ -140,10 +132,10 @@ def start_screen():
                     return player_name.get_text()
             manager2.process_events(event)
 
-        manager2.update(60/1000)
+        manager2.update(60 / 1000)
         player_name.redraw()
         manager2.draw_ui(screen)
-        
+
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -460,10 +452,6 @@ class Camera:
 
 
 if __name__ == '__main__':
-    # CHANGE_COLOR = pygame.USEREVENT
-    # counter = 0
-    # text = '00.00'
-    # pygame.time.set_timer(CHANGE_COLOR, 1000)
     global user_name, user_time
     start_time = datetime.datetime.now()
     font = pygame.font.SysFont('Consolas', 30)
@@ -545,18 +533,9 @@ if __name__ == '__main__':
                 terminate()
 
             key = pygame.key.get_pressed()
-            # if event.type == CHANGE_COLOR:
-            #     counter += 1
-            #     seconds = str(counter % 60)
-            #     minutes = str((counter // 60))
-            #     if len(seconds) == 1:
-            #         seconds = '0' + seconds
-            #     if len(minutes) == 1:
-            #         minutes = '0' + minutes
-            #     text = minutes + '.' + seconds
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 show_highscores()
-                #time.sleep(4)
+                # time.sleep(4)
                 size = width, height = 550, 550
                 screen = pygame.display.set_mode(size)
                 pygame.display.update()
