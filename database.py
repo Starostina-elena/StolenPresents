@@ -56,7 +56,7 @@ def show_highscores(mode=False):
     font = pygame.font.Font(None, 28)
     start_y = 100
     res.insert(0, ['Игрок', 'Подарков', 'Время'])
-    for i, line in enumerate(res[:10]):
+    for i, line in enumerate(res[:11]):
         user = line[0]
         gifts = line[1]
         time = line[2]
