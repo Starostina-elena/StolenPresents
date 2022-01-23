@@ -14,7 +14,6 @@ screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Snake Game')
 snake_block = 10
 snake_speed = 10
-t_start = datetime.datetime.now()
 font_style = pygame.font.SysFont("arial", 25)
 score_font = pygame.font.SysFont("arial", 35)
 screen.fill('white')
@@ -170,6 +169,7 @@ def main():
     status_game_blocked = False
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     font = pygame.font.SysFont('Consolas', 30)
+    t_start = datetime.datetime.now()
     t_n = datetime.datetime.now()
     delta_time1 = (t_n - t_start)
     text = str(60 - delta_time1.seconds)
