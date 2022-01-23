@@ -100,8 +100,14 @@ def generate_level(level):
             elif level[y][x] == '@':
                 Tile('empty', x, y)
                 new_player = Player(x, y)
+            elif level[y][x] == '!':
+                Tile('chest1', x, y)
+            elif level[y][x] == '*':
+                Tile('chest2', x, y)
             elif level[y][x] == '^':
-                Tile('chest', x, y)
+                Tile('chest3', x, y)
+            elif level[y][x] == '%':
+                Tile('chest4', x, y)
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
 
@@ -119,28 +125,29 @@ def message(msg, color):
 def move(hero, movement):
     global level_x, level_y, flag
     x, y = hero.pos
+    print(x, y)
     if flag:
         if movement == "up":
-            if y > 0 and (level_map[y - 1][x] == "." or level_map[y - 1][x] == "@" or level_map[y - 1][x] == "^"):
+            if y > 0 and (level_map[y - 1][x] == "." or level_map[y - 1][x] == "@"):
                 hero.move(x, y - 1)
-                if x == 8 and y - 1 == 8:
+                if (x == 8 and y - 1 == 7) or (x == 9 and y - 1 == 6) or (x == 8 and y - 1 == 8):
                     flag = False
         elif movement == "down":
             if y < level_y - 1 and (
-                    level_map[y + 1][x] == "." or level_map[y + 1][x] == "@" or level_map[y + 1][x] == "^"):
+                    level_map[y + 1][x] == "." or level_map[y + 1][x] == "@"):
                 hero.move(x, y + 1)
-                if x == 8 and y + 1 == 8:
+                if (x == 8 and y + 1 == 7) or (x == 8 and y + 1 == 8) or (x == 9 and y + 1 == 6):
                     flag = False
         elif movement == "left":
-            if x > 0 and (level_map[y][x - 1] == "." or level_map[y][x - 1] == "@" or level_map[y][x - 1] == "^"):
+            if x > 0 and (level_map[y][x - 1] == "." or level_map[y][x - 1] == "@"):
                 hero.move(x - 1, y)
-                if x - 1 == 8 and y == 8:
+                if (x - 1 == 8 and y == 8) or (x - 1 == 9 and y == 6) or (x - 1 == 8 and y == 7):
                     flag = False
         elif movement == "right":
             if x < level_x - 1 and (
-                    level_map[y][x + 1] == "." or level_map[y][x + 1] == "@" or level_map[y][x + 1] == "^"):
+                    level_map[y][x + 1] == "." or level_map[y][x + 1] == "@"):
                 hero.move(x + 1, y)
-                if x + 1 == 8 and y == 8:
+                if (x + 1 == 8 and y == 7) or (x + 1 == 8 and y == 8) or (x + 1 == 9 and y == 6):
                     flag = False
     else:
         screen.fill('white')
@@ -161,9 +168,12 @@ def main():
     tiles_group = pygame.sprite.Group()
     player_group = pygame.sprite.Group()
     tile_images = {
-        'wall': load_image('stenka.png'),
-        'empty': load_image('pol1.png'),
-        'chest': load_image('finalc.png')
+        'wall': load_image('present_grinch_wall.png'),
+        'empty': load_image('present_grinch_floor.png'),
+        'chest1': load_image('first.png'),
+        'chest2': load_image('second.png'),
+        'chest3': load_image('third.png'),
+        'chest4': load_image('fourth.png')
     }
     player_image = pygame.transform.scale(load_image('dedmoroz.png'), (40, 40))
 
