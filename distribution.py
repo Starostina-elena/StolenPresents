@@ -156,86 +156,86 @@ def move(hero, movement):
         if movement == "up":
             if y > 0 and (level_map[y - 1][x] == "." or level_map[y - 1][x] == "@"):
                 hero.move(x, y - 1)
-                if houses != 1:
-                    if [x, y - 1] in houses_coordinars:
-                        houses -= 1
-                        screen.fill('white')
-                        pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
-                        # вывод сообщения
-                        if houses == 1:
-                            show_message(f"Остался {houses} подарок")
-                        elif houses == 2 or houses == 3 or houses == 4:
-                            show_message(f"Осталось {houses} подарка")
-                        elif houses == 5 or houses == 6 or houses == 7:
-                            show_message(f"Осталось {houses} подарков")
-                        del houses_coordinars[houses_coordinars.index([x, y - 1])]
-                        pygame.display.update()
+                if [x, y - 1] in houses_coordinars:
+                    houses -= 1
+                    screen.fill('white')
+                    pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+                    # вывод сообщения
+                    if houses == 0:
+                        flag = False
+                    if houses == 1:
+                        show_message(f"Остался {houses} подарок")
+                    elif houses == 2 or houses == 3 or houses == 4:
+                        show_message(f"Осталось {houses} подарка")
+                    elif houses == 5 or houses == 6 or houses == 7:
+                        show_message(f"Осталось {houses} подарков")
+                    del houses_coordinars[houses_coordinars.index([x, y - 1])]
+                    pygame.display.update()
+                    if houses != 0:
                         time.sleep(1)
-                else:
-                    flag = False
         elif movement == "down":
             if y < level_y - 1 and (
                     level_map[y + 1][x] == "." or level_map[y + 1][x] == "@"):
                 hero.move(x, y + 1)
-                if houses != 1:
-                    if [x, y + 1] in houses_coordinars:
-                        houses -= 1
-                        screen.fill('white')
-                        pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
-                        # вывод сообщения
-                        if houses == 1:
-                            show_message(f"Остался {houses} подарок")
-                        elif houses == 2 or houses == 3 or houses == 4:
-                            show_message(f"Осталось {houses} подарка")
-                        elif houses == 5 or houses == 6 or houses == 7:
-                            show_message(f"Осталось {houses} подарков")
-                        del houses_coordinars[houses_coordinars.index([x, y + 1])]
-                        pygame.display.update()
+                if [x, y + 1] in houses_coordinars:
+                    houses -= 1
+                    screen.fill('white')
+                    pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+                    # вывод сообщения
+                    if houses == 0:
+                        flag = False
+                    if houses == 1:
+                        show_message(f"Остался {houses} подарок")
+                    elif houses == 2 or houses == 3 or houses == 4:
+                        show_message(f"Осталось {houses} подарка")
+                    elif houses == 5 or houses == 6 or houses == 7:
+                        show_message(f"Осталось {houses} подарков")
+                    del houses_coordinars[houses_coordinars.index([x, y + 1])]
+                    pygame.display.update()
+                    if houses != 0:
                         time.sleep(1)
-                else:
-                    flag = False
         elif movement == "left":
             if x > 0 and (level_map[y][x - 1] == "." or level_map[y][x - 1] == "@"):
                 hero.move(x - 1, y)
-                if houses != 1:
-                    if [x - 1, y] in houses_coordinars:
-                        houses -= 1
-                        screen.fill('white')
-                        pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
-                        # вывод сообщения
-                        if houses == 1:
-                            show_message(f"Остался {houses} подарок")
-                        elif houses == 2 or houses == 3 or houses == 4:
-                            show_message(f"Осталось {houses} подарка")
-                        elif houses == 5 or houses == 6 or houses == 7:
-                            show_message(f"Осталось {houses} подарков")
-                        del houses_coordinars[houses_coordinars.index([x - 1, y])]
-                        pygame.display.update()
+                if [x - 1, y] in houses_coordinars:
+                    houses -= 1
+                    screen.fill('white')
+                    pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+                    # вывод сообщения
+                    if houses == 0:
+                        flag = False
+                    if houses == 1:
+                        show_message(f"Остался {houses} подарок")
+                    elif houses == 2 or houses == 3 or houses == 4:
+                        show_message(f"Осталось {houses} подарка")
+                    elif houses == 5 or houses == 6 or houses == 7:
+                        show_message(f"Осталось {houses} подарков")
+                    del houses_coordinars[houses_coordinars.index([x - 1, y])]
+                    pygame.display.update()
+                    if houses != 0:
                         time.sleep(1)
-                else:
-                    flag = False
         elif movement == "right":
             if x < level_x - 1 and (
                     level_map[y][x + 1] == "." or level_map[y][x + 1] == "@"):
                 hero.move(x + 1, y)
-                if houses != 1:
-                    if [x + 1, y] in houses_coordinars:
-                        houses -= 1
-                        screen.fill('white')
-                        pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
-                        # вывод сообщения
-                        if houses == 1:
-                            show_message(f"Остался {houses} подарок")
-                        elif houses == 2 or houses == 3 or houses == 4:
-                            show_message(f"Осталось {houses} подарка")
-                        elif houses == 5 or houses == 6 or houses == 7:
-                            show_message(f"Осталось {houses} подарков")
-                        del houses_coordinars[houses_coordinars.index([x + 1, y])]
-                        pygame.display.update()
+                if [x + 1, y] in houses_coordinars:
+                    houses -= 1
+                    screen.fill('white')
+                    pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
+                    # вывод сообщения
+                    if houses == 0:
+                        flag = False
+                    if houses == 1:
+                        show_message(f"Остался {houses} подарок")
+                    elif houses == 2 or houses == 3 or houses == 4:
+                        show_message(f"Осталось {houses} подарка")
+                    elif houses == 5 or houses == 6 or houses == 7:
+                        show_message(f"Осталось {houses} подарков")
+                    del houses_coordinars[houses_coordinars.index([x + 1, y])]
+                    pygame.display.update()
+                    if houses != 0:
                         time.sleep(1)
-                else:
-                    flag = False
-    else:
+    if flag is False:
         screen.fill('white')
         message("Поздравляем! Вы раздали подарки всем жителям!", "red")
         pygame.display.update()
