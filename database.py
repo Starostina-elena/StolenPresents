@@ -82,7 +82,14 @@ def show_highscores():
         screen2.blit(time_rendered, time_rect)
     while True:
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 return
         pygame.display.flip()
         pygame.display.update()
+
+
+if __name__ == '__main__':
+    pygame.init()
+    show_highscores()
