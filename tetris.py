@@ -9,11 +9,16 @@ import sys
 
 class Board:
 
+    """Реализует доску, на которой расположены все фигуры"""
+
     def __init__(self, width, height):
         self.width = width
         self.height = height
+
+        # изначально доска пуста
         self.board = [[None for j in range(width)] for i in range(height)]
 
+        # цвета, используемые для окраски фигур
         self.colors = [(0, 255, 200),
                        (255, 255, 0),
                        (150, 200, 0),
@@ -24,6 +29,8 @@ class Board:
                        (0, 100, 100),
                        (100, 255, 70),
                        (70, 100, 255)]
+
+        # возможные конфигурации фигур
         self.figures = [
             ((1, 0, 0), (1, 1, 1)),
             ((1, 1, 1, 1),),
@@ -39,23 +46,31 @@ class Board:
         self.top = 10
         self.cell_size = 30
 
+        # блокирует игру до начала и после завершения
         self.blocked = True
         self.after_start = True
 
         self.show_message('Нажмите пробел, чтобы начать', 40)
 
+        # для победы нужно собрать 5 строк
         self.rows_left = 5
 
         self.win = False
 
+        # в этом списке хранятся кортежи с координатами элементов текущего (падающего) блока
         self.current_block = []
 
     def set_view(self, left, top, cell_size):
+
+        """Задает координаты левого верхнего угла доски и размер клетки"""
+
         self.left = left
         self.top = top
         self.cell_size = cell_size
 
     def render(self, screen):
+
+        """Отрисовка доски"""
 
         pygame.draw.rect(screen, 'white', ((self.left, self.top),
                                            (self.width * self.cell_size, self.height * self.cell_size)))
@@ -78,12 +93,15 @@ class Board:
                 self.show_message(f'Строк разрушить осталось: {self.rows_left}', 40)
         else:
             self.show_message('Вы победили')
+            # эта проверка нужна, чтобы сообщение о победе показывалось только 1 раз
             if not self.win:
                 show_rules('Благодаря вам Дед Мороз нашел 1 подарок!')
             self.win = True
             self.blocked = True
 
     def update(self):
+
+        """Если блок может целиком сдвинуться на 1 клетку вниз, сдвигает его"""
 
         moved = True
 
@@ -109,6 +127,8 @@ class Board:
     
     def move(self, direction):
 
+        """Перемещение текущего блока вправо/влево"""
+
         moved = True
 
         for i in sorted(self.current_block, key=lambda el: -el[0]):
@@ -133,6 +153,8 @@ class Board:
         self.check_field_after_move()
     
     def spin(self):
+
+        """Вращение блока"""
 
         x, y = min(self.current_block, key=lambda el: el[1])[1], min(self.current_block, key=lambda el: el[0])[0]
         block_coords = [(i[0] - y, i[1] - x) for i in self.current_block]
@@ -173,6 +195,8 @@ class Board:
 
     def check_field_after_move(self):
 
+        """Уничтожает собранные строки"""
+
         for i in range(len(self.board)):
             if self.board[i].count(None) == 0:
                 self.board[i] = [None for _ in range(self.width)]
@@ -188,6 +212,8 @@ class Board:
 
     def check_field_game_possible(self):
 
+        """Проверяет, что блоки не заходят за красную линию"""
+
         for row in range(self.height):
             for column in range(self.width):
                 if row <= 1 and self.board[row][column] is not None and (row, column) not in self.current_block:
@@ -197,6 +223,8 @@ class Board:
         return False
     
     def new_block(self):
+
+        """Создание нового блока"""
 
         block = choice(self.figures)
         block_color = randint(0, 9)
@@ -212,6 +240,8 @@ class Board:
 
     def show_message(self, message, font_size=50):
 
+        """Вывод надписи над доской"""
+
         global width, screen
 
         font = pygame.font.Font(None, font_size)
@@ -222,6 +252,10 @@ class Board:
 
 
 def show_rules(message=None):
+
+    """Создает окно с помощью pygame_gui и выводит в него либо правила,
+    либо сообщение о начислении подарка за победу"""
+
     global manager
 
     if message:
@@ -264,6 +298,9 @@ def show_rules(message=None):
 
 
 def confirmation_exit_dialog():
+
+    """Создание окна для подтверждения выхода из игры"""
+
     global manager, confirmation_mini_game_dialog
 
     confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
@@ -304,6 +341,9 @@ def confirmation_exit_dialog():
 
 
 def main():
+
+    """Основная функция, которая вызывается в main.py"""
+
     global width, height, screen, manager, confirmation_mini_game_dialog
 
     width, height = 550, 550
@@ -315,6 +355,7 @@ def main():
 
     manager = pygame_gui.UIManager((width, height))
 
+    # Создание кнопки для возврата в лабиринт
     exit_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((500, 0), (50, 50)),
         text='X',
@@ -329,6 +370,7 @@ def main():
     exit_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
     exit_button.rebuild()
 
+    # Создание кнопки помощи
     help_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((0, 0), (50, 50)),
         text='?',
