@@ -14,6 +14,7 @@ import sapper_game
 import stroyka
 import game_snake
 import tetris
+from database import add_to_database, show_highscores
 
 
 def tic_tac_toe():
@@ -149,7 +150,7 @@ def start_screen():
         manager2.update(60/1000)
         player_name.redraw()
         manager2.draw_ui(screen)
-        
+
         pygame.display.flip()
         clock.tick(FPS)
 
@@ -517,6 +518,7 @@ class Camera:
 
 
 if __name__ == '__main__':
+    global user_name, user_time
     # CHANGE_COLOR = pygame.USEREVENT
     # counter = 0
     # text = '00.00'
@@ -601,17 +603,15 @@ if __name__ == '__main__':
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                add_to_database(user_name, number_of_presents, user_time)
                 terminate()
             key = pygame.key.get_pressed()
-            # if event.type == CHANGE_COLOR:
-            #     counter += 1
-            #     seconds = str(counter % 60)
-            #     minutes = str((counter // 60))
-            #     if len(seconds) == 1:
-            #         seconds = '0' + seconds
-            #     if len(minutes) == 1:
-            #         minutes = '0' + minutes
-            #     text = minutes + '.' + seconds
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                show_highscores()
+                # time.sleep(4)
+                size = width, height = 550, 550
+                screen = pygame.display.set_mode(size)
+                pygame.display.update()
             if event.type == pygame.KEYDOWN:
                 animation()
                 if event.key == pygame.K_RIGHT:
@@ -697,6 +697,7 @@ if __name__ == '__main__':
         manager.draw_ui(screen)
         new_time = datetime.datetime.now()
         text = str(new_time - start_time)[:7]
+        user_time = text
         screen.blit(font.render(text, True, (255, 0, 0)), (420, 10))
         pygame.display.flip()
         clock.tick(FPS)
