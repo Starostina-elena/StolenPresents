@@ -7,6 +7,8 @@ import pygame
 
 flag = True
 pygame.display.set_caption('Present for Grinch')
+
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     # если файл не существует, то выходим
@@ -16,11 +18,14 @@ def load_image(name, colorkey=None):
     image = pygame.image.load(fullname)
     return image
 
+
 FPS = 50
+
 
 def terminate():
     pygame.quit()
     sys.exit()
+
 
 def start_screen():
     intro_text = ["Пройдите к сундуку!"]
@@ -62,7 +67,6 @@ def load_level(filename):
     return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
-
 class Tile(pygame.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
         super().__init__(tiles_group, all_sprites)
@@ -77,12 +81,13 @@ class Player(pygame.sprite.Sprite):
         self.pos = [pos_x, pos_y]
         self.image = player_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 15, tile_height * pos_y + 5)
+            tile_width * pos_x + 5, tile_height * pos_y + 5)
 
     def move(self, x, y):
         self.rect = self.image.get_rect().move(
-            tile_width * x + 15, tile_height * y + 5)
+            tile_width * x + 5, tile_height * y + 5)
         self.pos = [x, y]
+
 
 def generate_level(level):
     new_player, x, y = None, None, None
@@ -100,6 +105,7 @@ def generate_level(level):
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
 
+
 def message(msg, color):
     font_style = pygame.font.SysFont("arial", 25)
     mess = font_style.render(msg, True, color)
@@ -108,6 +114,7 @@ def message(msg, color):
         bottomright=(100, 100))
     screen.blit(present, rect)
     screen.blit(mess, [30, 225])
+
 
 def move(hero, movement):
     global level_x, level_y, flag
@@ -143,47 +150,55 @@ def move(hero, movement):
         exit()
 
 
-player = None
+def main():
 
-all_sprites = pygame.sprite.Group()
-tiles_group = pygame.sprite.Group()
-player_group = pygame.sprite.Group()
-tile_images = {
-    'wall': load_image('stenka.png'),
-    'empty': load_image('pol1.png'),
-    'chest': load_image('finalc.png')
-}
-player_image = load_image('dedmoroz.png')
+    global player, all_sprites, tiles_group, player_group, tile_images, player_image, tile_width, \
+        tile_height, clock, size, width, height, screen, level_map, player, level_x, level_y
 
-tile_width = tile_height = 50
+    player = None
 
-clock = pygame.time.Clock()
-pygame.init()
-size = width, height = 550, 550
-screen = pygame.display.set_mode(size)
-start_screen()
-level_map = load_level('map.txt')
-player, level_x, level_y = generate_level(load_level('map.txt'))
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            terminate()
+    all_sprites = pygame.sprite.Group()
+    tiles_group = pygame.sprite.Group()
+    player_group = pygame.sprite.Group()
+    tile_images = {
+        'wall': load_image('stenka.png'),
+        'empty': load_image('pol1.png'),
+        'chest': load_image('finalc.png')
+    }
+    player_image = pygame.transform.scale(load_image('dedmoroz.png'), (40, 40))
 
-        key = pygame.key.get_pressed()
-        if event.type == pygame.QUIT:
-            running = False
-        if key[pygame.K_DOWN]:
-            move(player, 'down')
-        if key[pygame.K_UP]:
-            move(player, 'up')
-        if key[pygame.K_LEFT]:
-            move(player, 'left')
-        if key[pygame.K_RIGHT]:
-            move(player, 'right')
+    tile_width = tile_height = 50
+
+    clock = pygame.time.Clock()
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+    start_screen()
+    level_map = load_level('map.txt')
+    player, level_x, level_y = generate_level(load_level('map.txt'))
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+
+            key = pygame.key.get_pressed()
+            if event.type == pygame.QUIT:
+                running = False
+            if key[pygame.K_DOWN]:
+                move(player, 'down')
+            if key[pygame.K_UP]:
+                move(player, 'up')
+            if key[pygame.K_LEFT]:
+                move(player, 'left')
+            if key[pygame.K_RIGHT]:
+                move(player, 'right')
+
+        all_sprites.draw(screen)
+        tiles_group.draw(screen)
+        player_group.draw(screen)
+        pygame.display.flip()
+        clock.tick(FPS)
 
 
-    all_sprites.draw(screen)
-    tiles_group.draw(screen)
-    player_group.draw(screen)
-    pygame.display.flip()
-    clock.tick(FPS)
+if __name__ == '__main__':
+    pygame.init()
+    main()
