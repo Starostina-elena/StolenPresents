@@ -89,11 +89,11 @@ class Player(pygame.sprite.Sprite):
         self.pos = [pos_x, pos_y]
         self.image = player_image
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x + 10, tile_height * pos_y + 5)
+            tile_width * pos_x + 5, tile_height * pos_y + 5)
 
     def move(self, x, y):
         self.rect = self.image.get_rect().move(
-            tile_width * x + 10, tile_height * y + 5)
+            tile_width * x + 5, tile_height * y + 5)
         self.pos = [x, y]
 
     def change_picture(self, n):
@@ -302,7 +302,7 @@ def main(number_of_presents):
         'chest': load_image('h.png'),
         'elochka': load_image('elka.png')
     }
-    player_image = load_image('dedmoroz.png')
+    player_image = pygame.transform.scale(load_image('dedmoroz.png'), (40, 40))
 
     tile_width = tile_height = 50
 
