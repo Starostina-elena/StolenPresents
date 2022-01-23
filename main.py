@@ -524,7 +524,7 @@ if __name__ == '__main__':
     # text = '00.00'
     # pygame.time.set_timer(CHANGE_COLOR, 1000)
 
-    FPS = 50
+    FPS = 60
 
     start_time = datetime.datetime.now()
     font = pygame.font.SysFont('Consolas', 30)
