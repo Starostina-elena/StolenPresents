@@ -352,11 +352,15 @@ def create_confirmation_mini_game_dialog():
         if pygame.sprite.collide_rect(player, i):
             current_game = i.game  # в current_game хранится название выбранной мини-игры
 
+    if current_game != 'Выход':
+        message = f'<font color="00FF00">Вы уверены, что хотите начать игру "{current_game}"?</font>'
+    else:
+        message = '<font color="00FF00">Вы уверены, что хотите покинуть лабиринт? Вернуться в него будет невозможно</font>'
     confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
         rect=pygame.Rect((0, 0), (300, 200)),
         manager=manager,
         window_title='Подтверждение',
-        action_long_desc=f'<font color="00FF00">Вы уверены, что хотите начать игру "{current_game}"?</font>',
+        action_long_desc=message,
         action_short_name='OK',
         blocking=True
     )
@@ -448,12 +452,16 @@ def generate_level(level):
                 new_player = Player(x, y)
             elif level[y][x] == '%':
                 Tile('empty', x, y)
-                level[y] = level[y][:x] + '#' + level[y][x + 1:]
+                AnimatedSprite('exit_portal', load_image("green_portal.png", -1), 4, 1,
+                               x * tile_width, y * tile_height, 'Выход')
             elif level[y][x] == '*':
                 Tile('empty', x, y)
                 AnimatedSprite('portal', load_image("portal.png", -1), 4, 1,
                                x * tile_width, y * tile_height, MINI_GAMES[0])
                 del MINI_GAMES[0]
+            elif level[y][x] == '-':
+                print('1')
+                wall_group.add(Tile('empty', x, y))
 
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y, level
@@ -464,10 +472,9 @@ class AnimatedSprite(pygame.sprite.Sprite):
     """Анимация порталов"""
 
     def __init__(self, type, sheet, columns, rows, x, y, game):
-        if type == 'portal':
-            super().__init__(all_sprites, portals)
-        else:
-            super().__init__(all_sprites)
+
+        super().__init__(all_sprites, portals)
+
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
         self.cur_frame = 0
