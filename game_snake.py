@@ -1,11 +1,10 @@
 import pygame
 import time
 import random
-import os
 import sys
 import pygame_gui
 import datetime
-import datetime as dt
+
 pygame.init()
 clock = pygame.time.Clock()
 width = 550
@@ -17,17 +16,21 @@ snake_speed = 10
 font_style = pygame.font.SysFont("arial", 25)
 score_font = pygame.font.SysFont("arial", 35)
 screen.fill('white')
-def Your_score(score):
+
+def Your_score(score):#подсчет очков
     value = score_font.render("Your Score: " + str(score), True, 'pink')
     screen.blit(value, [180, 0])
-def our_snake(snake_block, snake_list):
+
+def our_snake(snake_block, snake_list):#создание змеи
     for x in snake_list:
         pygame.draw.rect(screen, 'black', [x[0], x[1], snake_block, snake_block])
+
 def message(msg, color):
     mess = font_style.render(msg, True, color)
     screen.blit(mess, [200, 225])
 count = 0
 game = True
+#начальные координаты
 x_snake = 225
 y_snake = 225
 x_food = random.randint(0, 500)
@@ -37,7 +40,8 @@ y_plussnake = 1
 snake_coords = []
 play = 0
 coords = [x_snake, y_snake]
-def Game():
+
+def Game():#вывод сообщения о проигрыше или выигрыше
     global game, x_snake, y_snake, x_food, y_food, x_plussnake, y_plussnake, snake_coords, count
     if game == False:
         if count >= 7:
@@ -54,7 +58,8 @@ def Game():
             pygame.display.update()
             time.sleep(3)
             exit()
-def show_rules(message=None):
+
+def show_rules(message=None):#показ правил
     global manager
     if message:
         rules = pygame_gui.windows.UIMessageWindow(
@@ -93,7 +98,8 @@ def show_rules(message=None):
     rules.text_block.background_colour = pygame.color.Color((255, 255, 255))
     rules.text_block.rebuild()
     rules.rebuild()
-def confirmation_exit_dialog():
+
+def confirmation_exit_dialog():#показ окна для выхода из игры
     global manager, confirmation_mini_game_dialog
     confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
         rect=pygame.Rect((200, 70), (300, 200)),
@@ -130,8 +136,9 @@ def confirmation_exit_dialog():
     confirmation_mini_game_dialog.confirmation_text.background_colour = pygame.color.Color((255, 255, 255))
     confirmation_mini_game_dialog.confirmation_text.rebuild()
     confirmation_mini_game_dialog.rebuild()
+
 def main():
-    t_start = datetime.datetime.now()
+    t_start = datetime.datetime.now()#время начала игры
     global game, x_snake, y_snake, x_food, y_food, x_plussnake, y_plussnake, snake_coords, count, coords, \
         width, height, screen, manager, confirmation_mini_game_dialog
     width, height = 550, 550
@@ -139,6 +146,7 @@ def main():
     manager = pygame_gui.UIManager((width, height))
     current_block_id = None
     time = True
+    #кнопки
     exit_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((500, 0), (50, 50)),
         text='X',
@@ -166,15 +174,12 @@ def main():
     help_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
     help_button.rebuild()
     clock = pygame.time.Clock()
-    running = True
-    status_game_blocked = False
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     font = pygame.font.SysFont('Consolas', 30)
     t_start = datetime.datetime.now()
     t_n = datetime.datetime.now()
     delta_time1 = (t_n - t_start)
-    text = str(60 - delta_time1.seconds)
-    if str(60 - delta_time1.seconds) == "0":
+    if str(60 - delta_time1.seconds) == "0":#если время заканчивается - выход из игры
         game = False
     if game:
         while game:
@@ -195,6 +200,7 @@ def main():
                 if event.type == pygame.QUIT:
                     break
                     sys.exit()
+                #движение змейки
                 key = pygame.key.get_pressed()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
@@ -212,6 +218,7 @@ def main():
             screen.blit(font.render(text, True, (0, 0, 0)), (80, 0))
             pygame.display.flip()
             clock.tick(60)
+            #при выходе за границы - змейка просто циклически идет дальше(по кругу)
             if x_snake <= 0:
                 x_snake = 550
             elif x_snake >= 550:
@@ -220,6 +227,7 @@ def main():
                 y_snake = 550
             elif y_snake >= 550:
                 y_snake = 0
+            #проверка на совпадение координат, чтобы захватить еду
             if (x_snake == x_food or x_snake == x_food - 1 or x_snake == x_food - 2 or x_snake == x_food - 3 or
                 x_snake == x_food - 4 or x_snake == x_food - 5 or x_snake == x_food + 1 or x_snake == x_food + 2
                 or x_snake == x_food + 3 or x_snake == x_food + 4 or x_snake == x_food + 5) and (
