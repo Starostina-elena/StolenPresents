@@ -1,5 +1,3 @@
-import time
-
 import pygame
 import sys
 import os
@@ -17,7 +15,6 @@ winner = False
 
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
-    # если файл не существует, то выходим
     if not os.path.isfile(fullname):
         print(f"Файл с изображением '{fullname}' не найден")
         sys.exit()
@@ -25,21 +22,19 @@ def load_image(name, colorkey=None):
     return image
 
 
-class Mountain(pygame.sprite.Sprite):
+class Snow(pygame.sprite.Sprite):#осноовная картинка
     image = load_image("moun.png")
 
     def __init__(self):
         super().__init__(all_sprites)
-        self.image = Mountain.image
+        self.image = Snow.image
         self.rect = self.image.get_rect()
-        # вычисляем маску для эффективного сравнения
         self.mask = pygame.mask.from_surface(self.image)
-        # располагаем горы внизу
         self.rect.bottom = height
 
 
-mountain = Mountain()
-y_pos = 215
+mountain = Snow()
+y_pos = 215#координаты у
 my = []
 count = 0
 y_p = 0
@@ -47,19 +42,19 @@ xx = 0
 yy = 0
 st = 0
 counter = 0
-a = []
+a = []#список для координат
 font_style = pygame.font.SysFont("arial", 25)
 score_font = pygame.font.SysFont("arial", 35)
 flag_of_game = True
 blocked = False
 
 
-def message(msg, color):
+def message(msg, color):#передает и вывод сообщение
     mess = font_style.render(msg, True, color)
     screen.blit(mess, [200, 225])
 
 
-def show_message_above_field():
+def show_message_above_field():#получает и вывод сообщение
 
     global width, screen
 
@@ -78,14 +73,13 @@ def show_message_above_field():
 
 
 class Landing(pygame.sprite.Sprite):
-    image = load_image("kvadrat.png")
+    image = load_image("kvadrat.png")#сама фигурка
 
     def __init__(self, pos):
         global my, y_pos, count, result, y_p, st, a, counter
         super().__init__(all_sprites)
         self.image = Landing.image
         self.rect = self.image.get_rect()
-        # вычисляем маску для эффективного сравнения
         self.mask = pygame.mask.from_surface(self.image)
         self.rect.x = pos[0]
         self.rect.y = pos[1]
@@ -95,7 +89,7 @@ class Landing(pygame.sprite.Sprite):
             xx = self.rect.x
             yy = self.rect.y
         if result % 2 == 0 and count != 1:
-            a += [self.rect.x, self.rect.y]
+            a += [self.rect.x, self.rect.y]#добавление координат в список
             count += 1
             if count != 1:
                 y_pos -= 25
@@ -118,20 +112,20 @@ class Landing(pygame.sprite.Sprite):
             if blocked:
                 return
 
-            if result % 2 != 0 and id(self) == current_block_id:
+            if result % 2 != 0 and id(self) == current_block_id:#блок перемещается из стороны в сторону
                 self.rect.x += 5
                 if self.rect.left > width:
                     self.rect.right = 0
-            else:
+            else:#блок нчинает падать
                 if not pygame.sprite.collide_mask(self, mountain) and self.rect.y < y_pos:
                     self.rect = self.rect.move(0, 5)
                 if self.rect.y == y_pos:
                     my += [self.rect.x, self.rect.y]
-                    current_block_id = id(Landing([122, 10]))
+                    current_block_id = id(Landing([122, 10]))#загружается новый блок
                     y_p += 1
                     result += 1
                     count += 1
-                if counter == 8:
+                if counter == 8:#если достигнуть максимальное колиечство кубиков подряд без ошибок
                     should_show_message = True
                     if not winner:
                         show_rules('Благодаря вам Дед Мороз нашел 1 подарок!')
@@ -139,17 +133,19 @@ class Landing(pygame.sprite.Sprite):
                     blocked = True
                 if counter != 1 and counter != 2:
                     if abs(int(my[-2]) - int(my[0])) >= 13 or abs(int(my[-2]) - int(my[-4])) >= 13:
+                        #если слишком большой сдвиг
                         should_show_message = True
                         blocked = True
                 if counter == 2:
                     if abs(int(my[-2]) - int(my[0])) >= 13:
+                        #если слишкои большой сдвиг
                         should_show_message = True
                         blocked = True
         except Exception as a:
             print(a)
 
 
-def show_rules(message=None):
+def show_rules(message=None):#окно с правилами
     global manager
 
     if message:
@@ -193,7 +189,7 @@ def show_rules(message=None):
     rules.rebuild()
 
 
-def confirmation_exit_dialog():
+def confirmation_exit_dialog():#окно с выходом из игры
     global manager, confirmation_mini_game_dialog
 
     confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
@@ -247,6 +243,7 @@ def main():
 
     current_block_id = None
 
+    #создание кнопок
     exit_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((500, 0), (50, 50)),
         text='X',
@@ -284,6 +281,7 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            #описание кнопок
             if event.type == pygame.USEREVENT:
                 if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == exit_button:
@@ -299,7 +297,7 @@ def main():
                     status_game_blocked = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if not (event.pos[0] < 50 and event.pos[1] < 50 or event.pos[0] > 500 and event.pos[
-                    1] < 50) and not status_game_blocked:
+                    1] < 50) and not status_game_blocked:#проверка на границы
                     result += 1
                     if result == 1:
                         current_block_id = id(Landing([122, 10]))
