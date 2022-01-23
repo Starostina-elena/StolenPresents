@@ -131,8 +131,9 @@ def confirmation_exit_dialog():
     confirmation_mini_game_dialog.confirmation_text.rebuild()
     confirmation_mini_game_dialog.rebuild()
 def main():
+    t_start = datetime.datetime.now()
     global game, x_snake, y_snake, x_food, y_food, x_plussnake, y_plussnake, snake_coords, count, coords, \
-        width, height, screen, manager, confirmation_mini_game_dialog, t_start
+        width, height, screen, manager, confirmation_mini_game_dialog
     width, height = 550, 550
     screen = pygame.display.set_mode((width, height))
     manager = pygame_gui.UIManager((width, height))
@@ -188,6 +189,7 @@ def main():
             if str(60 - delta_time1.seconds) == "0":
                 game = False
                 Game()
+                
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
