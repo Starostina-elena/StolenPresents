@@ -116,6 +116,10 @@ def generate_level(level):
                 new_player = Player(x, y)
             elif level[y][x] == '^':
                 Tile('elochka', x, y)
+            elif level[y][x] == '&':
+                Tile('grinch_house', x, y)
+            elif level[y][x] == '*':
+                Tile('grinch', x, y)
             elif level[y][x] == '!':
                 counter_of_houses += 1
                 if counter_of_houses <= houses:
@@ -125,6 +129,23 @@ def generate_level(level):
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y
 
+def generate_level_nuls(level):
+    global houses
+    new_player, x, y = None, None, None
+    counter_of_houses = 0
+    for y in range(len(level)):
+        for x in range(len(level[y])):
+            # отрисовка объектов
+            if level[y][x] == '.':
+                Tile('empty', x, y)
+            elif level[y][x] == '#':
+                Tile('wall', x, y)
+            elif level[y][x] == '@':
+                Tile('empty', x, y)
+                new_player = Player(x, y)
+
+    # вернем игрока, а также размер поля в клетках
+    return new_player, x, y
 
 def message(msg, color):
     font_style = pygame.font.SysFont("arial", 25)
@@ -237,7 +258,7 @@ def move(hero, movement):
                         time.sleep(1)
     if flag is False:
         screen.fill('white')
-        message("Поздравляем! Вы раздали подарки всем жителям!", "red")
+        message("Поздравляем! Вы раздали подарки всем жителям и спасли новый год!", "red")
         pygame.display.update()
         time.sleep(3)
         level_end = True
@@ -284,18 +305,6 @@ def main(number_of_presents):
     animation_i = 0
     player_image = animation_set[animation_i]
     flag = True
-
-    distribution(number_of_presents)
-    houses = len(houses_coordinars)
-    FPS = 50
-    x_position = 0
-    y_position = 0
-
-    player = None
-
-    all_sprites = pygame.sprite.Group()
-    tiles_group = pygame.sprite.Group()
-    player_group = pygame.sprite.Group()
     tile_images = {
         'wall': load_image('fffa.png'),
         'empty': load_image('sn.png'),
@@ -309,36 +318,81 @@ def main(number_of_presents):
     clock = pygame.time.Clock()
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
+    all_sprites = pygame.sprite.Group()
+    tiles_group = pygame.sprite.Group()
+    player_group = pygame.sprite.Group()
     start_screen()
-    level_map = load_level('map1.txt')
-    player, level_x, level_y = generate_level(load_level('map1.txt'))
-    while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-
-            key = pygame.key.get_pressed()
-            if event.type == pygame.QUIT:
-                running = False
-            if key[pygame.K_DOWN]:
-                move(player, 'down')
-            if key[pygame.K_UP]:
-                move(player, 'up')
-            if key[pygame.K_LEFT]:
-                move(player, 'left')
-            if key[pygame.K_RIGHT]:
-                move(player, 'right')
-
+    FPS = 50
+    if number_of_presents == 0:
+        level_map = load_level('map3.txt')
+        player, level_x, level_y = generate_level_nuls(load_level('map3.txt'))
         all_sprites.draw(screen)
         tiles_group.draw(screen)
         player_group.draw(screen)
         pygame.display.flip()
         clock.tick(FPS)
+        time.sleep(3)
+        screen.fill('white')
+        message("К сожалению, вы не спасли Новый Год!", "red")
+        pygame.display.update()
+        time.sleep(3)
+    else:
+        distribution(number_of_presents)
+        houses = len(houses_coordinars)
+        FPS = 50
+        x_position = 0
+        y_position = 0
 
-        if level_end:
-            return
+        player = None
+
+        all_sprites = pygame.sprite.Group()
+        tiles_group = pygame.sprite.Group()
+        player_group = pygame.sprite.Group()
+        tile_images = {
+            'wall': load_image('fffa.png'),
+            'empty': load_image('sn.png'),
+            'chest': load_image('h.png'),
+            'elochka': load_image('elka.png'),
+            'grinch_house': load_image('grinch_houses.png'),
+            'grinch': load_image('grinch1.png')
+        }
+        player_image = pygame.transform.scale(load_image('dedmoroz.png'), (40, 40))
+
+        tile_width = tile_height = 50
+
+        clock = pygame.time.Clock()
+        size = width, height = 550, 550
+        screen = pygame.display.set_mode(size)
+        start_screen()
+        level_map = load_level('map1.txt')
+        player, level_x, level_y = generate_level(load_level('map1.txt'))
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    terminate()
+
+                key = pygame.key.get_pressed()
+                if event.type == pygame.QUIT:
+                    running = False
+                if key[pygame.K_DOWN]:
+                    move(player, 'down')
+                if key[pygame.K_UP]:
+                    move(player, 'up')
+                if key[pygame.K_LEFT]:
+                    move(player, 'left')
+                if key[pygame.K_RIGHT]:
+                    move(player, 'right')
+
+            all_sprites.draw(screen)
+            tiles_group.draw(screen)
+            player_group.draw(screen)
+            pygame.display.flip()
+            clock.tick(FPS)
+
+            if level_end:
+                return
 
 
 if __name__ == '__main__':
     pygame.init()
-    main(3)
+    main(1)
