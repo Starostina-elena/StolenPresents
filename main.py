@@ -15,9 +15,13 @@ import stroyka
 import game_snake
 import tetris
 from database import add_to_database, show_highscores
+import grinch
+import distribution
 
 
 def tic_tac_toe():
+
+    """Игра крестики-нолики"""
 
     global width, height, screen, size, number_of_presents
 
@@ -30,6 +34,8 @@ def tic_tac_toe():
 
 def game_three_in_row():
 
+    """Игра три в ряд"""
+
     global width, height, screen, size, number_of_presents
 
     if three_in_row.main():
@@ -40,6 +46,8 @@ def game_three_in_row():
 
 
 def game_2048():
+
+    """Игра 2048"""
 
     global width, height, screen, size, number_of_presents
 
@@ -52,6 +60,8 @@ def game_2048():
 
 def saper():
 
+    """Игра сапер"""
+
     global width, height, screen, size, number_of_presents
 
     if sapper_game.start():
@@ -62,6 +72,8 @@ def saper():
 
 
 def tower():
+
+    """Игра башня"""
 
     global width, height, screen, size, number_of_presents
 
@@ -74,6 +86,8 @@ def tower():
 
 def snake():
 
+    """Игра змейка"""
+
     global width, height, screen, size, number_of_presents
 
     if game_snake.main():
@@ -85,6 +99,8 @@ def snake():
 
 def mini_game_tetris():
 
+    """Игра тетрис"""
+
     global width, height, screen, size, number_of_presents
 
     if tetris.main():
@@ -94,12 +110,41 @@ def mini_game_tetris():
     screen = pygame.display.set_mode(size)
 
 
+def present_for_grinch():
+
+    """Бонусный уровень с подарком для Гринча"""
+
+    global width, height, screen, size, number_of_presents
+
+    grinch.main()
+
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+
+
+def presents_for_citizens():
+
+    """Раздача подарков жителям"""
+
+    global width, height, screen, size, number_of_presents
+
+    distribution.main(number_of_presents)
+
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+
+
 def terminate():
+
+    """Выход из игры"""
+
     pygame.quit()
     sys.exit()
 
 
 def show_text_message(text, position, color='white', font_size=30):
+
+    """Вывод на экран текстового сообщения"""
 
     if type(text) == str:
         text = [text]
@@ -117,6 +162,8 @@ def show_text_message(text, position, color='white', font_size=30):
 
 
 def start_screen():
+
+    """Стартовый экран, получение имени игрока"""
 
     fon = pygame.transform.scale(load_image('main_beginning_fon.jpg'), (800, 600))
     screen.blit(fon, (0, 0))
@@ -156,6 +203,8 @@ def start_screen():
 
 
 def show_history():
+
+    """Показывает слайд-шоу, рассказывающее историю игры"""
 
     screen.fill((0, 0, 0))
 
@@ -207,6 +256,9 @@ def show_history():
 
 
 def load_level(filename):
+
+    """Чтение карты уровня из файла"""
+
     filename = "data/" + filename
     # читаем уровень, убирая символы перевода строки
     with open(filename, 'r') as mapFile:
@@ -220,6 +272,9 @@ def load_level(filename):
 
 
 def load_image(name, colorkey=0, transform=None):
+
+    """Загрузка изображения"""
+
     fullname = os.path.join('data', name)
     # если файл не существует, то выходим
     if not os.path.isfile(fullname):
@@ -227,7 +282,6 @@ def load_image(name, colorkey=0, transform=None):
         sys.exit()
     image = pygame.image.load(fullname)
     if colorkey is not None:
-        # image = image.convert()
         if colorkey == -1:
             colorkey = image.get_at((0, 0))
         image.set_colorkey(colorkey)
@@ -239,70 +293,100 @@ def load_image(name, colorkey=0, transform=None):
 
 
 def prepare_movement():
+
+    """Обрабатывает словарь directions для движения игрока"""
+
     global player_stands_on_portal, confirmation_mini_game_dialog
 
     if directions['right']:
+        # Анимация Деда Мороза
         animation()
+        # Передвижение (сообщение для подтверждения входа в мини-игру не надо создавать,
+        # если оно уже есть (player_stands_on_portal) или если игрок не стоит на портале)
         if not pygame.sprite.spritecollideany(player,
                                               portals) or player_stands_on_portal:
             move(player, 'right')
-            if not pygame.sprite.spritecollideany(player, portals):
+            if not pygame.sprite.spritecollideany(player, portals):  # Удаление подтверждения входа в мини-игру
+                # (если игрок сошел с портала)
                 player_stands_on_portal = False
                 if confirmation_mini_game_dialog is not None:
                     confirmation_mini_game_dialog.kill()
                     confirmation_mini_game_dialog = None
         else:
+            # Создание сообщения для подтверждения входа в мини-игру
             create_confirmation_mini_game_dialog()
     if directions['left']:
+        # Анимация Деда Мороза
         animation()
+        # Передвижение (сообщение для подтверждения входа в мини-игру не надо создавать,
+        # если оно уже есть (player_stands_on_portal) или если игрок не стоит на портале)
         if not pygame.sprite.spritecollideany(player,
                                               portals) or player_stands_on_portal:
             move(player, 'left')
-            if not pygame.sprite.spritecollideany(player, portals):
+            if not pygame.sprite.spritecollideany(player, portals):  # Удаление подтверждения входа в мини-игру
+                # (если игрок сошел с портала)
                 player_stands_on_portal = False
                 if confirmation_mini_game_dialog is not None:
                     confirmation_mini_game_dialog.kill()
                     confirmation_mini_game_dialog = None
         else:
+            # Создание сообщения для подтверждения входа в мини-игру
             create_confirmation_mini_game_dialog()
     if directions['up']:
+        # Анимация Деда Мороза
         animation()
+        # Передвижение (сообщение для подтверждения входа в мини-игру не надо создавать,
+        # если оно уже есть (player_stands_on_portal) или если игрок не стоит на портале)
         if not pygame.sprite.spritecollideany(player,
                                               portals) or player_stands_on_portal:
             move(player, 'up')
-            if not pygame.sprite.spritecollideany(player, portals):
+            if not pygame.sprite.spritecollideany(player, portals):  # Удаление подтверждения входа в мини-игру
+                # (если игрок сошел с портала)
                 player_stands_on_portal = False
                 if confirmation_mini_game_dialog is not None:
                     confirmation_mini_game_dialog.kill()
                     confirmation_mini_game_dialog = None
         else:
+            # Создание сообщения для подтверждения входа в мини-игру
             create_confirmation_mini_game_dialog()
     if directions['down']:
+        # Анимация Деда Мороза
         animation()
+        # Передвижение (сообщение для подтверждения входа в мини-игру не надо создавать,
+        # если оно уже есть (player_stands_on_portal) или если игрок не стоит на портале)
         if not pygame.sprite.spritecollideany(player,
                                               portals) or player_stands_on_portal:
             move(player, 'down')
-            if not pygame.sprite.spritecollideany(player, portals):
+            if not pygame.sprite.spritecollideany(player, portals):  # Удаление подтверждения входа в мини-игру
+                # (если игрок сошел с портала)
                 player_stands_on_portal = False
                 if confirmation_mini_game_dialog is not None:
                     confirmation_mini_game_dialog.kill()
                     confirmation_mini_game_dialog = None
         else:
+            # Создание сообщения для подтверждения входа в мини-игру
             create_confirmation_mini_game_dialog()
 
 
 def create_confirmation_mini_game_dialog():
+
+    """Создает диалог для подтверждения входа в мини-игру"""
+
     global confirmation_mini_game_dialog, player_stands_on_portal, current_game
 
     for i in portals:
         if pygame.sprite.collide_rect(player, i):
-            current_game = i.game
+            current_game = i.game  # в current_game хранится название выбранной мини-игры
 
+    if current_game != 'Выход':
+        message = f'<font color="00FF00">Вы уверены, что хотите начать игру "{current_game}"?</font>'
+    else:
+        message = '<font color="00FF00">Вы уверены, что хотите покинуть лабиринт? Вернуться в него будет невозможно</font>'
     confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
         rect=pygame.Rect((0, 0), (300, 200)),
         manager=manager,
         window_title='Подтверждение',
-        action_long_desc=f'<font color="00FF00">Вы уверены, что хотите начать игру "{current_game}"?</font>',
+        action_long_desc=message,
         action_short_name='OK',
         blocking=True
     )
@@ -359,6 +443,9 @@ def create_confirmation_mini_game_dialog():
 
 
 def move(hero, movement):
+
+    """Передвижение Деда Мороза"""
+
     x, y = hero.pos
     global level_x
     global level_y
@@ -374,6 +461,9 @@ def move(hero, movement):
 
 
 def generate_level(level):
+
+    """Обработка загруженного из файла уровня"""
+
     global MINI_GAMES
 
     new_player, x, y = None, None, None
@@ -388,23 +478,29 @@ def generate_level(level):
                 new_player = Player(x, y)
             elif level[y][x] == '%':
                 Tile('empty', x, y)
-                level[y] = level[y][:x] + '#' + level[y][x + 1:]
+                AnimatedSprite('exit_portal', load_image("green_portal.png", -1), 4, 1,
+                               x * tile_width, y * tile_height, 'Выход')
             elif level[y][x] == '*':
                 Tile('empty', x, y)
                 AnimatedSprite('portal', load_image("portal.png", -1), 4, 1,
                                x * tile_width, y * tile_height, MINI_GAMES[0])
                 del MINI_GAMES[0]
+            elif level[y][x] == '-':
+                print('1')
+                wall_group.add(Tile('empty', x, y))
 
     # вернем игрока, а также размер поля в клетках
     return new_player, x, y, level
 
 
 class AnimatedSprite(pygame.sprite.Sprite):
+
+    """Анимация порталов"""
+
     def __init__(self, type, sheet, columns, rows, x, y, game):
-        if type == 'portal':
-            super().__init__(all_sprites, portals)
-        else:
-            super().__init__(all_sprites)
+
+        super().__init__(all_sprites, portals)
+
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
         self.cur_frame = 0
@@ -435,8 +531,10 @@ class AnimatedSprite(pygame.sprite.Sprite):
 
 
 def animation():
-    global animation_n
-    global animation_i
+
+    """Анимация Деда Мороза"""
+
+    global animation_n, animation_i
     animation_n += 1
     if animation_n % 5 == 0:
         animation_i = (animation_i + 1) % 8
@@ -444,6 +542,9 @@ def animation():
 
 
 def draw_number_of_presents():
+
+    """Выводит количество подарков в левом верхнем углу"""
+
     pygame.draw.rect(screen, 'white', (0, 0, 90, 45))
     pygame.draw.rect(screen, 'black', (0, 0, 90, 45), 2)
 
@@ -456,6 +557,9 @@ def draw_number_of_presents():
 
 
 class Tile(pygame.sprite.Sprite):
+
+    """Класс рисует клетку снега или камня"""
+
     def __init__(self, tile_type, pos_x, pos_y):
         if tile_type == 'wall':
             super().__init__(tiles_group, all_sprites, wall_group)
@@ -467,6 +571,9 @@ class Tile(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
+
+    """Класс игрока"""
+
     def __init__(self, pos_x, pos_y):
         super().__init__(player_group, all_sprites)
         self.pos = [pos_x, pos_y]
@@ -501,6 +608,8 @@ class Player(pygame.sprite.Sprite):
 
 class Camera:
 
+    """Обеспечивает передвижение камеры"""
+
     # зададим начальный сдвиг камеры
     def __init__(self):
         self.dx = 0
@@ -518,18 +627,16 @@ class Camera:
 
 
 if __name__ == '__main__':
+
     global user_name, user_time
-    # CHANGE_COLOR = pygame.USEREVENT
-    # counter = 0
-    # text = '00.00'
-    # pygame.time.set_timer(CHANGE_COLOR, 1000)
 
     FPS = 60
 
-    start_time = datetime.datetime.now()
+    start_time = datetime.datetime.now()  # засекаем время начала для последующего отображения в правом верхнем углу \
+    # и записи в бд
     font = pygame.font.SysFont('Consolas', 30)
 
-    number_of_presents = 0
+    number_of_presents = 0  # количество собранных подарков
 
     MINI_GAMES = ['крестики-нолики',
                   'тетрис',
@@ -537,16 +644,18 @@ if __name__ == '__main__':
                   'сапёр',
                   '3 в ряд',
                   '2048',
-                  'башня']
+                  'башня']  # список с названиями мини-игр
     shuffle(MINI_GAMES)
     current_game = None
 
+    # Кадры для анимации Деда Мороза
     photos = ['Дед мороз.png', 'Дед мороз(кадр2).png', 'Дед мороз(кадр3).png',
               'Дед мороз(кадр2).png', 'Дед мороз.png', 'Дед мороз(кадр4).png',
               'Дед мороз(кадр5).png', 'Дед мороз(кадр4).png']
     animation_set = [load_image(i, transform=True) for i in photos]
     animation_n = 0
     animation_i = 0
+
     # группы спрайтов
     all_sprites = pygame.sprite.Group()
     tiles_group = pygame.sprite.Group()
@@ -554,12 +663,14 @@ if __name__ == '__main__':
     player_group = pygame.sprite.Group()
     wall_group = pygame.sprite.Group()
 
+    # Изображения для клеток и игрока
     tile_images = {
         'wall': load_image('walls.jpg'),
         'empty': load_image('floors.jpg')
     }
     player_image = animation_set[animation_i]
 
+    # Изображение подарка (используется рядом с надписью с кол-вом подарком)
     present_image = pygame.sprite.Sprite()
     present_image_group = pygame.sprite.Group()
     present_image.image = load_image('present.jpg', -1)
@@ -568,13 +679,16 @@ if __name__ == '__main__':
     present_image.rect.x, present_image.rect.y = 40, 2
     present_image_group.add(present_image)
 
+    # Размеры клетки
     tile_width = tile_height = 50
 
+    # Инициализация экрана
     pygame.init()
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
     pygame.display.set_caption('StolenPresents')
 
+    # Запуск музыки
     pygame.mixer.music.load('data/Jingle Bells.mp3')
     pygame.mixer.music.play(loops=-1)
 
@@ -582,18 +696,21 @@ if __name__ == '__main__':
 
     manager = pygame_gui.UIManager((width, height))
 
+    # Запуск стартового экрана и слайд-шоу
     user_name = start_screen()
-
     show_history()
 
+    # Загрузка уровня
     player, level_x, level_y, level_map = \
         generate_level(load_level('map2.txt'))
 
     size = width, height = 11 * tile_width, 11 * tile_height
     screen = pygame.display.set_mode(size)
 
+    # Создание камеры
     camera = Camera()
 
+    # Направления движения
     directions = {"right": False, "left": False, "up": False, "down": False}
 
     confirmation_mini_game_dialog = None
@@ -608,12 +725,12 @@ if __name__ == '__main__':
             key = pygame.key.get_pressed()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 show_highscores()
-                # time.sleep(4)
                 size = width, height = 550, 550
                 screen = pygame.display.set_mode(size)
                 pygame.display.update()
             if event.type == pygame.KEYDOWN:
                 animation()
+                # Движение игрока
                 if event.key == pygame.K_RIGHT:
                     directions['right'] = True
                 elif event.key == pygame.K_LEFT:
@@ -633,6 +750,7 @@ if __name__ == '__main__':
                 elif event.key == pygame.K_DOWN:
                     directions['down'] = False
             if event.type == pygame.USEREVENT:
+                # обработка входа в мини-игры
                 try:
                     if event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
                         if current_game == 'крестики-нолики':
@@ -671,6 +789,11 @@ if __name__ == '__main__':
                             for i in portals:
                                 if i.game == 'тетрис':
                                     i.kill()
+                        elif current_game == 'Выход':
+                            if number_of_presents == 7:
+                                present_for_grinch()
+                            presents_for_citizens()
+                            show_highscores(True)
                 except Exception as e:
                     print(e)
 
@@ -696,9 +819,12 @@ if __name__ == '__main__':
         present_image_group.draw(screen)
 
         manager.draw_ui(screen)
+
+        # Отображение времени, которое игрок находится в игре
         new_time = datetime.datetime.now()
         text = str(new_time - start_time)[:7]
         user_time = text
         screen.blit(font.render(text, True, (255, 0, 0)), (420, 10))
+
         pygame.display.flip()
         clock.tick(FPS)

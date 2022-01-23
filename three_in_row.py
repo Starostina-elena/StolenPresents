@@ -7,11 +7,14 @@ from random import randint
 
 
 class Board:
+    """Реализует доску, на которой расположены все фигуры"""
 
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.board = [[randint(0, 9) for j in range(width)] for i in range(height)]
+
+        # цвета для фигур
         self.colors = [(0, 255, 200),
                        (255, 255, 0),
                        (150, 200, 0),
@@ -30,22 +33,30 @@ class Board:
 
         self.player = 0
 
+        # в этой переменной хранится кортеж координат выбранной клетки или None, если клетка не выбрана
         self.chosen_cell = None
 
         self.blocked = False
 
+        # сразу удаляем уже собранные фигуры
         self.check_field_after_move()
 
+        # для победы нужно разбить 60 фигур
         self.stones_left = 60
-        
+
         self.win = False
 
     def set_view(self, left, top, cell_size):
+
+        """Задает координаты левого верхнего угла доски и размер клетки"""
+
         self.left = left
         self.top = top
         self.cell_size = cell_size
 
     def render(self, screen):
+
+        """Отрисовка доски"""
 
         pygame.draw.rect(screen, 'white', ((self.left, self.top),
                                            (self.width * self.cell_size, self.height * self.cell_size)))
@@ -68,12 +79,15 @@ class Board:
             self.show_message(f'Камней разрушить осталось: {self.stones_left}', 40)
         else:
             self.show_message('Вы победили')
+            # эта проверка нужна, чтобы сообщение о победе показывалось только 1 раз
             if not self.win:
                 show_rules('Благодаря вам Дед Мороз нашел 1 подарок!')
             self.win = True
             self.blocked = True
 
     def check_field_after_move(self):
+
+        """Разрушает собранные стоблцы и строки. Возвращает False если ничего не было разрушено"""
 
         something_changed = False
 
@@ -146,6 +160,8 @@ class Board:
 
     def check_field_game_possible(self):
 
+        """Проверяет, что на поле не сложилась ситуация, когда перемещение невозможно"""
+
         for i in range(self.width):
             for j in range(self.height):
                 try:
@@ -192,6 +208,8 @@ class Board:
 
     def show_message(self, message, font_size=50):
 
+        """Вывод сообщения над доской"""
+
         global width, screen
 
         font = pygame.font.Font(None, font_size)
@@ -201,6 +219,9 @@ class Board:
         screen.blit(string_rendered, intro_rect)
 
     def get_cell(self, mouse_pos):
+
+        """Возвращает клетку по координатам мыши"""
+
         if self.left <= mouse_pos[0] <= self.left + self.cell_size * self.width and \
                 self.top <= mouse_pos[1] <= self.top + self.cell_size * self.height:
             x = (mouse_pos[0] - self.left) // self.cell_size
@@ -209,29 +230,44 @@ class Board:
         return None
 
     def on_click(self, cell_coords):
+
+        """Обрабатывает нажатие мышью"""
+
         if self.chosen_cell is not None:
             if cell_coords == self.chosen_cell:
+                # Повторный клик по выделенной клетке отменяет выделение
                 self.chosen_cell = None
             elif sorted([abs(cell_coords[0] - self.chosen_cell[0]), abs(cell_coords[1] - self.chosen_cell[1])]) == [0,
                                                                                                                     1]:
+                # Перемещение фигур
                 self.board[self.chosen_cell[1]][self.chosen_cell[0]], self.board[cell_coords[1]][cell_coords[0]] = \
                     self.board[cell_coords[1]][cell_coords[0]], self.board[self.chosen_cell[1]][self.chosen_cell[0]]
-                if not self.check_field_after_move():
+                if not self.check_field_after_move():  # Если столбец или строка не были образованы,
+                    # возвращаем все как было
                     self.board[self.chosen_cell[1]][self.chosen_cell[0]], self.board[cell_coords[1]][cell_coords[0]] = \
                         self.board[cell_coords[1]][cell_coords[0]], self.board[self.chosen_cell[1]][self.chosen_cell[0]]
                 self.chosen_cell = None
             else:
+                # если ранее выбранная клетка не находится по соседству с новой клеткой,
+                # значение в self.chosen_cell перезаписывается
                 self.chosen_cell = cell_coords
         else:
+            # если до этого клетка не была выбрана, текущая клетка записывается в self.chosen_cell
             self.chosen_cell = cell_coords
 
     def get_click(self, mouse_pos):
+
+        """Реакция на нажатие мышью"""
+
         cell = self.get_cell(mouse_pos)
         if cell and not self.blocked:
             self.on_click(cell)
 
 
 def show_rules(message=None):
+
+    """Создает окно с помощью pygame_gui и выводит в него либо правила,
+    либо сообщение о начислении подарка за победу"""
 
     global manager
 
@@ -276,6 +312,8 @@ def show_rules(message=None):
 
 def confirmation_exit_dialog():
 
+    """Создание окна для подтверждения выхода из игры"""
+
     global manager, confirmation_mini_game_dialog
 
     confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
@@ -317,6 +355,8 @@ def confirmation_exit_dialog():
 
 def main():
 
+    """Основная функция, которая вызывается в main.py"""
+
     global width, height, screen, manager, confirmation_mini_game_dialog
 
     width, height = 550, 550
@@ -328,6 +368,7 @@ def main():
 
     manager = pygame_gui.UIManager((width, height))
 
+    # Создание кнопки для возврата в лабиринт
     exit_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((500, 0), (50, 50)),
         text='X',
@@ -342,6 +383,7 @@ def main():
     exit_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
     exit_button.rebuild()
 
+    # Создание кнопки помощи
     help_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((0, 0), (50, 50)),
         text='?',
@@ -387,7 +429,7 @@ def main():
 
         clock.tick(fps)
         pygame.display.flip()
-    
+
     return board.win
 
 

@@ -7,17 +7,21 @@ from random import randint, choice
 
 class Board:
 
+    """Реализует доску, на которой расположены все числа"""
+
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.board = [[None for j in range(width)] for i in range(height)]
 
+        # создание первых двух чисел на доске
         x1, y1, x2, y2 = randint(0, 3), randint(0, 3), randint(0, 3), randint(0, 3)
         while x1 == x2 and y1 == y2:
             x2, y2 = randint(0, 3), randint(0, 3)
         self.board[x1][y1] = choice([2, 4])
         self.board[x2][y2] = choice([2, 4])
 
+        # используемые цвета
         self.colors = {
             2: '#FFD773',
             4: '#FFC840',
@@ -39,11 +43,16 @@ class Board:
         self.win = False
 
     def set_view(self, left, top, cell_size):
+
+        """Задает координаты левого верхнего угла доски и размер клетки"""
+
         self.left = left
         self.top = top
         self.cell_size = cell_size
 
     def render(self, screen):
+
+        """Отрисовка доски"""
 
         pygame.draw.rect(screen, 'white', ((self.left, self.top),
                                            (self.width * self.cell_size, self.height * self.cell_size)))
@@ -80,6 +89,7 @@ class Board:
                 if self.board[j][i] == 256:
                     pygame.draw.rect(screen, 'black', (60, 0, 400, 50))
                     self.show_message('Вы победили')
+                    # эта проверка нужна, чтобы сообщение о победе показывалось только 1 раз
                     if not self.win:
                         show_rules('Благодаря вам Дед Мороз нашел 1 подарок!')
                     self.win = True
@@ -88,6 +98,8 @@ class Board:
                     self.show_message('Цель: 256')
 
     def check_field_game_possible(self):
+
+        """Проверка, что передвижение фигур еще возможно"""
 
         for i in range(self.width):
             for j in range(self.height):
@@ -103,6 +115,8 @@ class Board:
 
     def show_message(self, message, font_size=50):
 
+        """Вывод сообщения над доской"""
+
         global width, screen
 
         font = pygame.font.Font(None, font_size)
@@ -112,6 +126,8 @@ class Board:
         screen.blit(string_rendered, intro_rect)
 
     def move(self, coords):
+
+        """сдвиг всех фигур в указанном направлении"""
 
         if self.blocked:
             return
@@ -157,6 +173,7 @@ class Board:
                             self.board[j][i] = self.board[j][i + 1]
                             self.board[j][i + 1] = None
 
+        # добавление нового числа в случайно выбранную пустую клетку
         empty_cells_coords = []
 
         for i in range(self.width):
@@ -175,6 +192,10 @@ class Board:
 
 
 def show_rules(message=None):
+
+    """Создает окно с помощью pygame_gui и выводит в него либо правила,
+    либо сообщение о начислении подарка за победу"""
+
     global manager
 
     if message:
@@ -219,6 +240,9 @@ def show_rules(message=None):
 
 
 def confirmation_exit_dialog():
+
+    """Создание окна для подтверждения выхода из игры"""
+
     global manager, confirmation_mini_game_dialog
 
     confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
@@ -260,6 +284,8 @@ def confirmation_exit_dialog():
 
 def main():
 
+    """Основная функция, которая вызывается в main.py"""
+
     global width, height, screen, manager, confirmation_mini_game_dialog
 
     width, height = 550, 550
@@ -271,6 +297,7 @@ def main():
 
     manager = pygame_gui.UIManager((width, height))
 
+    # Создание кнопки для возврата в лабиринт
     exit_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((500, 0), (50, 50)),
         text='X',
@@ -285,6 +312,7 @@ def main():
     exit_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
     exit_button.rebuild()
 
+    # Создание кнопки помощи
     help_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((0, 0), (50, 50)),
         text='?',

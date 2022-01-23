@@ -149,20 +149,16 @@ def move(hero, movement):
                 hero.move(x + 1, y)
                 if (x + 1 == 8 and y == 7) or (x + 1 == 8 and y == 8) or (x + 1 == 9 and y == 6):
                     flag = False
-    else:
-        screen.fill('white')
-        message("Поздравляем! Вы нашли подарок для Гринча!", "red")
-        pygame.display.update()
-        time.sleep(4)
-        exit()
 
 
 def main():
 
     global player, all_sprites, tiles_group, player_group, tile_images, player_image, tile_width, \
-        tile_height, clock, size, width, height, screen, level_map, player, level_x, level_y
+        tile_height, clock, size, width, height, screen, level_map, player, level_x, level_y, flag
 
     player = None
+
+    flag = True
 
     all_sprites = pygame.sprite.Group()
     tiles_group = pygame.sprite.Group()
@@ -207,6 +203,13 @@ def main():
         player_group.draw(screen)
         pygame.display.flip()
         clock.tick(FPS)
+
+        if not flag:
+            screen.fill('white')
+            message("Поздравляем! Вы нашли подарок для Гринча!", "red")
+            pygame.display.update()
+            time.sleep(3)
+            return
 
 
 if __name__ == '__main__':
