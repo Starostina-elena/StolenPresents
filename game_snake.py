@@ -17,20 +17,25 @@ font_style = pygame.font.SysFont("arial", 25)
 score_font = pygame.font.SysFont("arial", 35)
 screen.fill('white')
 
-def Your_score(score):#подсчет очков
+
+def Your_score(score):  # подсчет очков
     value = score_font.render("Your Score: " + str(score), True, 'pink')
     screen.blit(value, [180, 0])
 
-def our_snake(snake_block, snake_list):#создание змеи
+
+def our_snake(snake_block, snake_list):  # создание змеи
     for x in snake_list:
         pygame.draw.rect(screen, 'black', [x[0], x[1], snake_block, snake_block])
+
 
 def message(msg, color):
     mess = font_style.render(msg, True, color)
     screen.blit(mess, [200, 225])
+
+
 count = 0
 game = True
-#начальные координаты
+# начальные координаты
 x_snake = 225
 y_snake = 225
 x_food = random.randint(0, 500)
@@ -41,25 +46,26 @@ snake_coords = []
 play = 0
 coords = [x_snake, y_snake]
 
-def Game():#вывод сообщения о проигрыше или выигрыше
-    global game, x_snake, y_snake, x_food, y_food, x_plussnake, y_plussnake, snake_coords, count
-    if game == False:
+
+def Game():  # вывод сообщения о проигрыше или выигрыше
+    global game, x_snake, y_snake, x_food, y_food, x_plussnake, y_plussnake, snake_coords, count, status_win
+    if not game:
         if count >= 7:
             screen.fill('white')
             message("You Win!", "red")
+            status_win = True
             Your_score(count)
             pygame.display.update()
             time.sleep(3)
-            exit()
         else:
             screen.fill('white')
             message("You Lost!", "red")
             Your_score(count)
             pygame.display.update()
             time.sleep(3)
-            exit()
 
-def show_rules(message=None):#показ правил
+
+def show_rules(message=None):  # показ правил
     global manager
     if message:
         rules = pygame_gui.windows.UIMessageWindow(
@@ -99,7 +105,8 @@ def show_rules(message=None):#показ правил
     rules.text_block.rebuild()
     rules.rebuild()
 
-def confirmation_exit_dialog():#показ окна для выхода из игры
+
+def confirmation_exit_dialog():  # показ окна для выхода из игры
     global manager, confirmation_mini_game_dialog
     confirmation_mini_game_dialog = pygame_gui.windows.UIConfirmationDialog(
         rect=pygame.Rect((200, 70), (300, 200)),
@@ -137,16 +144,20 @@ def confirmation_exit_dialog():#показ окна для выхода из и�
     confirmation_mini_game_dialog.confirmation_text.rebuild()
     confirmation_mini_game_dialog.rebuild()
 
+
 def main():
-    t_start = datetime.datetime.now()#время начала игры
+    t_start = datetime.datetime.now()  # время начала игры
     global game, x_snake, y_snake, x_food, y_food, x_plussnake, y_plussnake, snake_coords, count, coords, \
-        width, height, screen, manager, confirmation_mini_game_dialog
+        width, height, screen, manager, confirmation_mini_game_dialog, status_win
+
+    status_win = False
+
     width, height = 550, 550
     screen = pygame.display.set_mode((width, height))
     manager = pygame_gui.UIManager((width, height))
     current_block_id = None
     time = True
-    #кнопки
+    # кнопки
     exit_button = pygame_gui.elements.UIButton(
         relative_rect=pygame.Rect((500, 0), (50, 50)),
         text='X',
@@ -174,33 +185,54 @@ def main():
     help_button.colours['hovered_text'] = pygame.Color((255, 0, 0, 255))
     help_button.rebuild()
     clock = pygame.time.Clock()
-    pygame.time.set_timer(pygame.USEREVENT, 1000)
+    # pygame.time.set_timer(pygame.USEREVENT, 1000)
     font = pygame.font.SysFont('Consolas', 30)
     t_start = datetime.datetime.now()
     t_n = datetime.datetime.now()
     delta_time1 = (t_n - t_start)
-    if str(60 - delta_time1.seconds) == "0":#если время заканчивается - выход из игры
+    status_game_blocked = False
+    if str(60 - delta_time1.seconds) == "0":  # если время заканчивается - выход из игры
         game = False
+    time_pause = datetime.timedelta(0)
     if game:
         while game:
-            screen.fill('white')
-            pygame.draw.rect(screen, 'green', [x_food, y_food, 10, 10])
-            our_snake(snake_block, snake_coords)
-            Your_score(count)
-            t = clock.tick(0)
-            t_n = datetime.datetime.now()
-            delta_time1 = (t_n - t_start)
-            text = str(60 - delta_time1.seconds)
-            if str(60 - delta_time1.seconds) == "0":
-                game = False
-                Game()
-                
+            # screen.fill('white')
+            if not status_game_blocked:
+                pygame.draw.rect(screen, 'green', [x_food, y_food, 10, 10])
+                our_snake(snake_block, snake_coords)
+                Your_score(count)
+                t = clock.tick(0)
+                t_n = datetime.datetime.now()
+                delta_time1 = (t_n - t_start - time_pause)
+                text = str(60 - delta_time1.seconds)
+                if str(60 - delta_time1.seconds) == "0":
+                    game = False
+                    Game()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    break
                     sys.exit()
-                #движение змейки
+                if event.type == pygame.USEREVENT:
+                    try:
+                        if event.user_type == pygame_gui.UI_BUTTON_PRESSED:
+                            if event.ui_element == exit_button:
+                                status_game_blocked = True
+                                time_pause_started = datetime.datetime.now()
+                                confirmation_exit_dialog()
+                            elif event.ui_element == help_button:
+                                status_game_blocked = True
+                                time_pause_started = datetime.datetime.now()
+                                show_rules()
+                        elif event.user_type == pygame_gui.UI_CONFIRMATION_DIALOG_CONFIRMED:
+                            if event.ui_element == confirmation_mini_game_dialog:
+                                return status_win
+                        elif event.user_type == pygame_gui.UI_WINDOW_CLOSE:
+                            status_game_blocked = False
+                            time_pause += datetime.datetime.now() - time_pause_started
+                    except Exception as e:
+                        # print(e)
+                        pass
+                # движение змейки
                 key = pygame.key.get_pressed()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
@@ -215,10 +247,11 @@ def main():
                     elif event.key == pygame.K_DOWN:
                         y_plussnake = snake_block
                         x_plussnake = 0
+                manager.process_events(event)
             screen.blit(font.render(text, True, (0, 0, 0)), (80, 0))
             pygame.display.flip()
             clock.tick(60)
-            #при выходе за границы - змейка просто циклически идет дальше(по кругу)
+            # при выходе за границы - змейка просто циклически идет дальше(по кругу)
             if x_snake <= 0:
                 x_snake = 550
             elif x_snake >= 550:
@@ -227,7 +260,7 @@ def main():
                 y_snake = 550
             elif y_snake >= 550:
                 y_snake = 0
-            #проверка на совпадение координат, чтобы захватить еду
+            # проверка на совпадение координат, чтобы захватить еду
             if (x_snake == x_food or x_snake == x_food - 1 or x_snake == x_food - 2 or x_snake == x_food - 3 or
                 x_snake == x_food - 4 or x_snake == x_food - 5 or x_snake == x_food + 1 or x_snake == x_food + 2
                 or x_snake == x_food + 3 or x_snake == x_food + 4 or x_snake == x_food + 5) and (
@@ -240,17 +273,22 @@ def main():
                 x_food = random.randint(0, 500)
                 y_food = random.randint(50, 500)
                 count += 1
-            clock.tick(snake_speed)
-            x_snake += x_plussnake
-            y_snake += y_plussnake
+            manager.update(60 / 1000)
             screen.fill('white')
-            pygame.draw.rect(screen, 'green', [x_food, y_food, 10, 10])
-            snake_coords.append([x_snake, y_snake])
-            if len(snake_coords) - 1 > count:
-                del snake_coords[0]
-            our_snake(snake_block, snake_coords)
+            if not status_game_blocked:
+                clock.tick(snake_speed)
+                x_snake += x_plussnake
+                y_snake += y_plussnake
+                pygame.draw.rect(screen, 'green', [x_food, y_food, 10, 10])
+                snake_coords.append([x_snake, y_snake])
+                if len(snake_coords) - 1 > count:
+                    del snake_coords[0]
+                our_snake(snake_block, snake_coords)
+                pygame.display.update()
             Your_score(count)
-            pygame.display.update()
+            manager.draw_ui(screen)
+            if not game:
+                return status_win
     else:
         Game()
     manager.update(60 / 1000)

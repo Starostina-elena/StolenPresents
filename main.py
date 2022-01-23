@@ -665,6 +665,7 @@ if __name__ == '__main__':
                             for i in portals:
                                 if i.game == 'змейка':
                                     i.kill()
+                            current_game = None
                         elif current_game == 'тетрис':
                             mini_game_tetris()
                             for i in portals:
