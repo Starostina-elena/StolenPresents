@@ -15,6 +15,8 @@ import stroyka
 import game_snake
 import tetris
 from database import add_to_database, show_highscores
+import grinch
+import distribution
 
 
 def tic_tac_toe():
@@ -103,6 +105,30 @@ def mini_game_tetris():
 
     if tetris.main():
         number_of_presents += 1
+
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+
+
+def present_for_grinch():
+
+    """Бонусный уровень с подарком для Гринча"""
+
+    global width, height, screen, size, number_of_presents
+
+    grinch.main()
+
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+
+
+def presents_for_citizens():
+
+    """Раздача подарков жителям"""
+
+    global width, height, screen, size, number_of_presents
+
+    distribution.main(number_of_presents)
 
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
@@ -763,6 +789,10 @@ if __name__ == '__main__':
                             for i in portals:
                                 if i.game == 'тетрис':
                                     i.kill()
+                        elif current_game == 'Выход':
+                            if number_of_presents == 0:
+                                present_for_grinch()
+                            presents_for_citizens()
                 except Exception as e:
                     print(e)
 
