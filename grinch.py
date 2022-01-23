@@ -25,7 +25,7 @@ def terminate():
 def start_screen():
     intro_text = ["Пройдите к сундуку!"]
 
-    fon = pygame.transform.scale(load_image('fon.jpg'), (500, 500))
+    fon = pygame.transform.scale(load_image('fon.jpg'), (550, 550))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 30)
     text_coord = 50
@@ -112,23 +112,29 @@ def message(msg, color):
 def move(hero, movement):
     global level_x, level_y, flag
     x, y = hero.pos
-    if x == 7 and y == 8:
-        flag = False
     if flag:
         if movement == "up":
             if y > 0 and (level_map[y - 1][x] == "." or level_map[y - 1][x] == "@" or level_map[y - 1][x] == "^"):
                 hero.move(x, y - 1)
+                if x == 8 and y - 1 == 8:
+                    flag = False
         elif movement == "down":
             if y < level_y - 1 and (
                     level_map[y + 1][x] == "." or level_map[y + 1][x] == "@" or level_map[y + 1][x] == "^"):
                 hero.move(x, y + 1)
+                if x == 8 and y + 1 == 8:
+                    flag = False
         elif movement == "left":
             if x > 0 and (level_map[y][x - 1] == "." or level_map[y][x - 1] == "@" or level_map[y][x - 1] == "^"):
                 hero.move(x - 1, y)
+                if x - 1 == 8 and y == 8:
+                    flag = False
         elif movement == "right":
             if x < level_x - 1 and (
                     level_map[y][x + 1] == "." or level_map[y][x + 1] == "@" or level_map[y][x + 1] == "^"):
                 hero.move(x + 1, y)
+                if x + 1 == 8 and y == 8:
+                    flag = False
     else:
         screen.fill('white')
         message("Поздравляем! Вы нашли подарок для Гринча!", "red")
@@ -153,7 +159,7 @@ tile_width = tile_height = 50
 
 clock = pygame.time.Clock()
 pygame.init()
-size = width, height = 500, 500
+size = width, height = 550, 550
 screen = pygame.display.set_mode(size)
 start_screen()
 level_map = load_level('map.txt')
