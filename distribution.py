@@ -51,7 +51,6 @@ def start_screen():
                     event.type == pygame.MOUSEBUTTONDOWN:
                 return  # начинаем игру
         pygame.display.flip()
-        clock.tick(FPS)
 
 
 def load_level(filename):
@@ -151,7 +150,7 @@ def show_message(message, font_size=50):  # сообщение
 
 
 def move(hero, movement):
-    global level_x, level_y, flag, x_position, y_position, houses, houses_coordinars
+    global level_x, level_y, flag, x_position, y_position, houses, houses_coordinars, level_end
     x, y = hero.pos
     if flag:
         if movement == "up":
@@ -169,6 +168,7 @@ def move(hero, movement):
                             show_message(f"Осталось {houses} подарка")
                         elif houses == 5 or houses == 6 or houses == 7:
                             show_message(f"Осталось {houses} подарков")
+                        del houses_coordinars[houses_coordinars.index([x, y - 1])]
                         pygame.display.update()
                         time.sleep(1)
                 else:
@@ -189,6 +189,7 @@ def move(hero, movement):
                             show_message(f"Осталось {houses} подарка")
                         elif houses == 5 or houses == 6 or houses == 7:
                             show_message(f"Осталось {houses} подарков")
+                        del houses_coordinars[houses_coordinars.index([x, y + 1])]
                         pygame.display.update()
                         time.sleep(1)
                 else:
@@ -208,6 +209,7 @@ def move(hero, movement):
                             show_message(f"Осталось {houses} подарка")
                         elif houses == 5 or houses == 6 or houses == 7:
                             show_message(f"Осталось {houses} подарков")
+                        del houses_coordinars[houses_coordinars.index([x - 1, y])]
                         pygame.display.update()
                         time.sleep(1)
                 else:
@@ -228,6 +230,7 @@ def move(hero, movement):
                             show_message(f"Осталось {houses} подарка")
                         elif houses == 5 or houses == 6 or houses == 7:
                             show_message(f"Осталось {houses} подарков")
+                        del houses_coordinars[houses_coordinars.index([x + 1, y])]
                         pygame.display.update()
                         time.sleep(1)
                 else:
@@ -237,10 +240,42 @@ def move(hero, movement):
         message("Поздравляем! Вы раздали подарки всем жителям!", "red")
         pygame.display.update()
         time.sleep(3)
-        exit()
+        level_end = True
 
 
-if __name__ == '__main__':
+def distribution(number_of_presents):  # функция для о
+    # пределения координат всех домов по общему количеству подарков
+    global houses_coordinars
+    houses = number_of_presents
+    if number_of_presents == 1:  # если 1 подарок
+        houses_coordinars = [[8, 2]]
+    elif number_of_presents == 2:  # если 2 подарка
+        houses_coordinars = [[8, 2], [2, 3]]
+    elif number_of_presents == 3:  # если 3 подарка
+        houses_coordinars = [[8, 2], [2, 3], [8, 4]]
+    elif number_of_presents == 4:  # если 4 подарка
+        houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5]]
+    elif number_of_presents == 5:  # если 5 подарков
+        houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5], [8, 6]]
+    elif number_of_presents == 6:  # если 6 подарков
+        houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5], [8, 6], [2, 7]]
+    elif number_of_presents == 7:  # если 7 подарков
+        houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5], [8, 6], [2, 7], [8, 8]]
+
+
+def main(number_of_presents):
+
+    global houses_coordinars, screen, size, width, height, photos, animation_set, animation_n,\
+        animation_i, player_image, flag, houses, FPS, x_position, y_position, player, all_sprites, \
+        tiles_group, player_group, tile_images, player_image, tile_width, tile_height, clock, level_map, \
+        player, level_x, level_y, level_end
+
+    level_end = False
+
+    pygame.display.set_caption('Present for people')
+    size = width, height = 550, 550
+    screen = pygame.display.set_mode(size)
+
     photos = ['Дед мороз.png', 'Дед мороз(кадр2).png', 'Дед мороз(кадр3).png',
               'Дед мороз(кадр2).png', 'Дед мороз.png', 'Дед мороз(кадр4).png',
               'Дед мороз(кадр5).png', 'Дед мороз(кадр4).png']
@@ -250,31 +285,7 @@ if __name__ == '__main__':
     player_image = animation_set[animation_i]
     flag = True
 
-
-    def distribution(number_of_presents):  # функция для о
-        # пределения координат всех домов по общему количеству подарков
-        global houses_coordinars
-        houses = number_of_presents
-        pygame.display.set_caption('Present for people')
-        size = width, height = 550, 550
-        screen = pygame.display.set_mode(size)
-        if number_of_presents == 1:  # если 1 подарок
-            houses_coordinars = [[8, 2]]
-        elif number_of_presents == 2:  # если 2 подарка
-            houses_coordinars = [[8, 2], [2, 3]]
-        elif number_of_presents == 3:  # если 3 подарка
-            houses_coordinars = [[8, 2], [2, 3], [8, 4]]
-        elif number_of_presents == 4:  # если 4 подарка
-            houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5]]
-        elif number_of_presents == 5:  # если 5 подарков
-            houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5], [8, 6]]
-        elif number_of_presents == 6:  # если 6 подарков
-            houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5], [8, 6], [2, 7]]
-        elif number_of_presents == 7:  # если 7 подарков
-            houses_coordinars = [[8, 2], [2, 3], [8, 4], [2, 5], [8, 6], [2, 7], [8, 8]]
-
-
-    distribution()
+    distribution(number_of_presents)
     houses = len(houses_coordinars)
     FPS = 50
     x_position = 0
@@ -296,7 +307,6 @@ if __name__ == '__main__':
     tile_width = tile_height = 50
 
     clock = pygame.time.Clock()
-    pygame.init()
     size = width, height = 550, 550
     screen = pygame.display.set_mode(size)
     start_screen()
@@ -324,3 +334,11 @@ if __name__ == '__main__':
         player_group.draw(screen)
         pygame.display.flip()
         clock.tick(FPS)
+
+        if level_end:
+            return
+
+
+if __name__ == '__main__':
+    pygame.init()
+    main(3)
