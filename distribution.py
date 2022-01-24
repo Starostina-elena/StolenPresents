@@ -28,7 +28,7 @@ def terminate():
 
 
 def start_screen():
-    intro_text = ["Пройдите к деревню!"]
+    intro_text = ["Пройдите в деревню!"]
 
     fon = pygame.transform.scale(load_image('country.png'), (550, 550))
     screen.blit(fon, (0, 0))
@@ -152,12 +152,16 @@ def message(msg, color):
     mess = font_style.render(msg, True, color)
     present = pygame.transform.scale(load_image('present.png'), (100, 100))
     rect = present.get_rect(
-        bottomright=(325, 400))
+        bottomright=(330, 400))
     screen.blit(present, rect)
-    screen.blit(mess, [30, 225])
+    screen.blit(mess, [5, 225])
 
+def ms(msg, color):
+    font_style = pygame.font.SysFont("arial", 25)
+    mess = font_style.render(msg, True, color)
+    screen.blit(mess, [225, 200])
 
-def show_message(message, font_size=50):  # сообщение
+def show_message(message, ms, font_size=50):  # сообщение
     global width, screen
     font = pygame.font.Font(None, font_size)
     string_rendered = font.render(message, True, pygame.Color('white'))
@@ -258,7 +262,9 @@ def move(hero, movement):
                         time.sleep(1)
     if flag is False:
         screen.fill('white')
-        message("Поздравляем! Вы раздали подарки всем жителям и спасли новый год!", "red")
+        ms("Поздравляем!", "red")
+        message("Вы раздали подарки всем жителям "
+                "и спасли новый год!", "red")
         pygame.display.update()
         time.sleep(3)
         level_end = True
