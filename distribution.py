@@ -161,7 +161,7 @@ def ms(msg, color):
     mess = font_style.render(msg, True, color)
     screen.blit(mess, [225, 200])
 
-def show_message(message, ms, font_size=50):  # сообщение
+def show_message(message, font_size=50):  # сообщение
     global width, screen
     font = pygame.font.Font(None, font_size)
     string_rendered = font.render(message, True, pygame.Color('white'))
@@ -401,4 +401,4 @@ def main(number_of_presents):
 
 if __name__ == '__main__':
     pygame.init()
-    main(0)
+    main(7)
