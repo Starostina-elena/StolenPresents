@@ -156,10 +156,18 @@ def message(msg, color):
     screen.blit(present, rect)
     screen.blit(mess, [5, 225])
 
+
 def ms(msg, color):
     font_style = pygame.font.SysFont("arial", 25)
     mess = font_style.render(msg, True, color)
     screen.blit(mess, [225, 200])
+
+
+def mssg(ms, color):
+    font_style = pygame.font.SysFont("arial", 25)
+    mess = font_style.render(ms, True, color)
+    screen.blit(mess, [150, 250])
+
 
 def show_message(message, font_size=50):  # сообщение
     global width, screen
@@ -265,6 +273,7 @@ def move(hero, movement):
         ms("Поздравляем!", "red")
         message("Вы раздали подарки всем жителям "
                 "и спасли новый год!", "red")
+        mssg("Гринч снова полюбил Новый Год", "red")
         pygame.display.update()
         time.sleep(3)
         level_end = True
